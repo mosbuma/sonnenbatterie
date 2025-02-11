@@ -1,0 +1,35 @@
+version: '3'
+services:
+  node-red:
+    image: nodered/node-red:latest
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./node-red/data:/data
+    environment:
+      - NODE_RED_ENABLE_PROJECTS=true
+    restart: unless-stopped
+
+  battery-sim-server:
+    image: node:latest  # Use the latest Node.js image
+    working_dir: /usr/src/app
+    volumes:
+      - ./battery-sim/server:/usr/src/app
+    command: npm start  # Adjust the command as needed
+    ports:
+      - "5000:5000"  # Adjust the port as needed
+    environment:
+      - SERVER_ENV_VAR=example_value  # Replace with actual environment variables
+    restart: unless-stopped
+
+  battery-sim-client:
+    image: node:latest  # Use the latest Node.js image
+    working_dir: /usr/src/app
+    volumes:
+      - ./battery-sim/client:/usr/src/app
+    command: npm run dev -- --host # Ensure the command allows binding to 0.0.0.0
+    ports:
+      - "5173:5173"  # Adjust the port as needed
+    environment:
+      - CLIENT_ENV_VAR=example_value  # Replace with actual environment variables
+    restart: unless-stopped
