@@ -1,0 +1,53 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.18.2
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/.npmrc
+5 silly config load:file:/usr/src/node-red/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install node-red-contrib-tibber-api@6.2.0
+8 verbose argv "install" "--no-audit" "--no-update-notifier" "--no-fund" "--save" "--save-prefix" "~" "--omit" "dev" "--engine-strict" "node-red-contrib-tibber-api@6.2.0"
+9 verbose logfile logs-max:10 dir:/data/.npm/_logs/2025-02-11T23_58_46_556Z-
+10 verbose logfile /data/.npm/_logs/2025-02-11T23_58_46_556Z-debug-0.log
+11 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly fetch manifest node-red-contrib-tibber-api@6.2.0
+15 silly packumentCache full:https://registry.npmjs.org/node-red-contrib-tibber-api cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/node-red-contrib-tibber-api 720ms (cache miss)
+17 silly packumentCache full:https://registry.npmjs.org/node-red-contrib-tibber-api set size:undefined disposed:false
+18 silly placeDep ROOT node-red-contrib-tibber-api@6.2.0 OK for: node-red-project@0.0.1 want: 6.2.0
+19 silly fetch manifest tibber-api@^5.3.1
+20 silly packumentCache full:https://registry.npmjs.org/tibber-api cache-miss
+21 http fetch GET 200 https://registry.npmjs.org/tibber-api 571ms (cache miss)
+22 silly packumentCache full:https://registry.npmjs.org/tibber-api set size:undefined disposed:false
+23 silly placeDep ROOT tibber-api@5.3.1 OK for: node-red-contrib-tibber-api@6.2.0 want: ^5.3.1
+24 silly fetch manifest ws@^8.18.0
+25 silly packumentCache full:https://registry.npmjs.org/ws cache-miss
+26 http fetch GET 200 https://registry.npmjs.org/ws 45ms (cache miss)
+27 silly packumentCache full:https://registry.npmjs.org/ws set size:undefined disposed:false
+28 silly fetch manifest bufferutil@^4.0.1
+29 silly packumentCache full:https://registry.npmjs.org/bufferutil cache-miss
+30 http fetch GET 200 https://registry.npmjs.org/bufferutil 35ms (cache miss)
+31 silly packumentCache full:https://registry.npmjs.org/bufferutil set size:undefined disposed:false
+32 silly fetch manifest utf-8-validate@>=5.0.2
+33 silly packumentCache full:https://registry.npmjs.org/utf-8-validate cache-miss
+34 http fetch GET 200 https://registry.npmjs.org/utf-8-validate 35ms (cache miss)
+35 silly packumentCache full:https://registry.npmjs.org/utf-8-validate set size:undefined disposed:false
+36 silly placeDep ROOT ws@8.18.0 OK for: tibber-api@5.3.1 want: ^8.18.0
+37 silly reify moves {}
+38 silly tarball no local data for ws@https://registry.npmjs.org/ws/-/ws-8.18.0.tgz. Extracting by manifest.
+39 silly tarball no local data for tibber-api@https://registry.npmjs.org/tibber-api/-/tibber-api-5.3.1.tgz. Extracting by manifest.
+40 silly tarball no local data for node-red-contrib-tibber-api@https://registry.npmjs.org/node-red-contrib-tibber-api/-/node-red-contrib-tibber-api-6.2.0.tgz. Extracting by manifest.
+41 http fetch GET 200 https://registry.npmjs.org/ws/-/ws-8.18.0.tgz 52ms (cache miss)
+42 http fetch GET 200 https://registry.npmjs.org/node-red-contrib-tibber-api/-/node-red-contrib-tibber-api-6.2.0.tgz 118ms (cache miss)
+43 http fetch GET 200 https://registry.npmjs.org/tibber-api/-/tibber-api-5.3.1.tgz 136ms (cache miss)
+44 silly ADD node_modules/ws
+45 silly ADD node_modules/tibber-api
+46 silly ADD node_modules/node-red-contrib-tibber-api
+47 verbose cwd /data
+48 verbose os Linux 6.8.0-52-generic
+49 verbose node v20.18.2
+50 verbose npm  v10.8.2
+51 verbose exit 0
+52 info ok

@@ -1,0 +1,1765 @@
+[
+    {
+        "id": "9c9f23e35e225b55",
+        "type": "tab",
+        "label": "SonnenBatterie Control",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c303c08096ca06f0",
+        "type": "subflow",
+        "name": "SB Get Status",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "e4ede092a5904284"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 980,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "84fd618ea5c8baca",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#3FADB5",
+        "icon": "node-red/status.svg"
+    },
+    {
+        "id": "eae36ce651e39938",
+        "type": "subflow",
+        "name": "SB Set Mode",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 80,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "f79035cdbce7f16f"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#3FADB5",
+        "icon": "node-red/status.svg"
+    },
+    {
+        "id": "b54b23cb614d0af1",
+        "type": "subflow",
+        "name": "SB Charge Battery",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "775aa518f64a102a"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#3FADB5",
+        "icon": "node-red/status.svg"
+    },
+    {
+        "id": "ef1fb0c70913c681",
+        "type": "tibber-api-endpoint",
+        "queryUrl": "https://api.tibber.com/v1-beta/gql",
+        "feedConnectionTimeout": "30",
+        "feedTimeout": "60",
+        "queryRequestTimeout": "30",
+        "name": "Markus"
+    },
+    {
+        "id": "e4ede092a5904284",
+        "type": "function",
+        "z": "c303c08096ca06f0",
+        "name": "Build Status Request",
+        "func": "\nvar sonnen_ip = global.get(\"sonnen_api_ip\");\nvar sonnen_token = global.get(\"sonnen_api_token\");\n\nvar endpoint = \"/api/v2/status\"\n\nmsg.url = \"http://\" + sonnen_ip + endpoint;\nmsg.method = \"GET\"\nmsg.headers = {};\nmsg.headers['Auth-Token'] = sonnen_token;\n\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "96757557d82491fb"
+            ]
+        ]
+    },
+    {
+        "id": "96757557d82491fb",
+        "type": "http request",
+        "z": "c303c08096ca06f0",
+        "name": "Generic HTTP Request",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 570,
+        "y": 80,
+        "wires": [
+            [
+                "84fd618ea5c8baca"
+            ]
+        ]
+    },
+    {
+        "id": "84fd618ea5c8baca",
+        "type": "function",
+        "z": "c303c08096ca06f0",
+        "name": "testForErrors",
+        "func": "\nconst allowedStatusCodes = [200, 201, 202, 203, 204, 205, 206];\n\nvar numErrors = msg.numErrors;\n\nif (typeof numErrors == 'undefined') {\n    numErrors = 0;\n}\n\nconst returnCode = msg.statusCode;\n\nif (allowedStatusCodes.includes(returnCode)) {\n\nreturn [msg, null];\n\n} else {\n\n    numErrors = numErrors +1 ;\n    msg.numErrors = numErrors;\n\n    node.log(\"Error \" + returnCode + \" encountered, retrying\")\n    node.log(\"Retry # \" + numErrors);\n\n    if (numErrors <= 10) {\n        return [null, msg];\n    } else {\n        node.log(\"maximum number of retries reached. Stopping.\");\n    }\n\n\n}\n\n\n\n\n\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 830,
+        "y": 80,
+        "wires": [
+            [],
+            [
+                "632fd166a9f24037"
+            ]
+        ]
+    },
+    {
+        "id": "632fd166a9f24037",
+        "type": "delay",
+        "z": "c303c08096ca06f0",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 200,
+        "y": 180,
+        "wires": [
+            [
+                "e4ede092a5904284"
+            ]
+        ]
+    },
+    {
+        "id": "4b9735266375be0d",
+        "type": "http request",
+        "z": "eae36ce651e39938",
+        "name": "Generic HTTP Request",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 950,
+        "y": 120,
+        "wires": [
+            [
+                "e3b32df016901eef",
+                "59f1fbcb4add51b0"
+            ]
+        ]
+    },
+    {
+        "id": "d8db4521b6c0ebf9",
+        "type": "function",
+        "z": "eae36ce651e39938",
+        "name": "Prepare Mode Set",
+        "func": "var sonnen_ip = global.get(\"sonnen_api_ip\");\nvar sonnen_token = global.get(\"sonnen_api_token\");\n\nvar endpoint = \"/api/v2/configurations\"\n\nconst desiredMode = msg.batteryMode;\n\n\n\nif (typeof desiredMode != 'undefined') {\n    msg.url = \"http://\" + sonnen_ip + endpoint;\n    msg.method = \"PUT\"\n    msg.headers = {};\n    msg.headers['Auth-Token'] = sonnen_token;\n\n    msg.payload = {\"EM_OperatingMode\":desiredMode};\n\n    if (desiredMode == \"2\") {\n        //since the BatteryCharging status is unreliable/unpredictable, I have to set a flag in the global context.\n        global.set(\"isBatteryCharging\", false);\n    }\n\n    return msg;\n\n} else {\n\n    node.warn(\"Mode Set called without mode msg.batteryMode\");\n}\n\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 120,
+        "wires": [
+            [
+                "4b9735266375be0d",
+                "462e18606a91d867"
+            ]
+        ]
+    },
+    {
+        "id": "e3b32df016901eef",
+        "type": "debug",
+        "z": "eae36ce651e39938",
+        "name": "debug 21",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1260,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "f79035cdbce7f16f",
+        "type": "function",
+        "z": "eae36ce651e39938",
+        "name": "checkIfRequestNeeded",
+        "func": "const currentMode = msg.payload.OperatingMode;\nconst desiredMode = msg.batteryMode;\n\nif ((typeof desiredMode == 'undefined') || (typeof currentMode == 'undefined')){\n    node.warn(\"SBSetMode called with desiredMode \" + desiredMode + \"; currentMode \" + currentMode);\n} else {\n\n    if (currentMode != desiredMode) {\n        //we only need to handle this case. If desired == current, the flow stops (no msg returned)\n        //also means, no unneccessary SB API calls\n        return msg;\n    }\n\n}\n\n\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 120,
+        "wires": [
+            [
+                "d8db4521b6c0ebf9"
+            ]
+        ]
+    },
+    {
+        "id": "462e18606a91d867",
+        "type": "debug",
+        "z": "eae36ce651e39938",
+        "name": "debug 28",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "9041ec6f75969902",
+        "type": "function",
+        "z": "eae36ce651e39938",
+        "name": "Prepare Charging=0 Watts",
+        "func": "/*  Found out that the battery retains the last command in manual/API command. Could be a bug or a feature.\n    However, since the previous command was almost certainly \n    \n    \"/api/v2/setpoint/charge/\" + sonnen_watts;\n\n    We have to make sure it is set to 0, since we don't want to charge\n    Also, just to be on the safe side, will set the discharge also to 0 - so it is just idling, which is what we want in this case.\n    Until some other part of the flow wants it to charge or discharge (the latter simply by giving back control via \n    OperatingMode = \"2\").\n\n    */\n\n\nvar sonnen_ip = global.get(\"sonnen_api_ip\");\nvar sonnen_token = global.get(\"sonnen_api_token\");\n\nvar endpoint = \"/api/v2/setpoint/charge/0\";\n\nmsg.url = \"http://\" + sonnen_ip + endpoint;\nmsg.method = \"POST\"\nmsg.headers = {};\nmsg.headers['Auth-Token'] = sonnen_token;\nmsg.payload = {};\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1540,
+        "y": 120,
+        "wires": [
+            [
+                "119f89a55a89293c"
+            ]
+        ]
+    },
+    {
+        "id": "119f89a55a89293c",
+        "type": "http request",
+        "z": "eae36ce651e39938",
+        "name": "Generic HTTP Request",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1850,
+        "y": 120,
+        "wires": [
+            [
+                "835799b49970e706",
+                "1bd0c7627951e848"
+            ]
+        ]
+    },
+    {
+        "id": "835799b49970e706",
+        "type": "debug",
+        "z": "eae36ce651e39938",
+        "name": "debug 29",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2060,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "1bd0c7627951e848",
+        "type": "function",
+        "z": "eae36ce651e39938",
+        "name": "Prepare Discharging=0 Watts",
+        "func": "/*  Just to be on the safe side, will set the discharge also to 0 - so it is just idling, which is what we want in this case.\n    Until some other part of the flow wants it to charge or discharge (the latter simply by giving back control via \n    OperatingMode = \"2\").\n\n    */\n\n\nvar sonnen_ip = global.get(\"sonnen_api_ip\");\nvar sonnen_token = global.get(\"sonnen_api_token\");\n\nvar endpoint = \"/api/v2/setpoint/discharge/0\";\n\nmsg.url = \"http://\" + sonnen_ip + endpoint;\nmsg.method = \"POST\"\nmsg.headers = {};\nmsg.headers['Auth-Token'] = sonnen_token;\nmsg.payload = {};\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2200,
+        "y": 120,
+        "wires": [
+            [
+                "e272e4a458855330"
+            ]
+        ]
+    },
+    {
+        "id": "e272e4a458855330",
+        "type": "http request",
+        "z": "eae36ce651e39938",
+        "name": "Generic HTTP Request",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2510,
+        "y": 120,
+        "wires": [
+            [
+                "8381494e7abc4a0e"
+            ]
+        ]
+    },
+    {
+        "id": "8381494e7abc4a0e",
+        "type": "debug",
+        "z": "eae36ce651e39938",
+        "name": "debug 30",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2720,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "59f1fbcb4add51b0",
+        "type": "switch",
+        "z": "eae36ce651e39938",
+        "name": "OperatingMode == \"1\"?",
+        "property": "payload.EM_OperatingMode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1250,
+        "y": 120,
+        "wires": [
+            [
+                "9041ec6f75969902"
+            ]
+        ]
+    },
+    {
+        "id": "4cb01b9109bbbf49",
+        "type": "function",
+        "z": "b54b23cb614d0af1",
+        "name": "Prepare Charging (OM=1)",
+        "func": "var sonnen_ip = global.get(\"sonnen_api_ip\");\nvar sonnen_token = global.get(\"sonnen_api_token\");\n\nvar endpoint = \"/api/v2/configurations\"\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\nglobal.set(\"startChargeWh\", msg.payload.RemainingCapacity_Wh);\n\nif (trace) {\n    node.log(\"start charge with Wh: \" + msg.payload.RemainingCapacity_Wh);\n}\n\n\nmsg.url = \"http://\" + sonnen_ip + endpoint;\nmsg.method = \"PUT\"\nmsg.headers = {};\nmsg.headers['Auth-Token'] = sonnen_token;\nmsg.payload = {\"EM_OperatingMode\":\"1\"}\n\n\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 80,
+        "wires": [
+            [
+                "edf31e9f60b417ae"
+            ]
+        ]
+    },
+    {
+        "id": "edf31e9f60b417ae",
+        "type": "http request",
+        "z": "b54b23cb614d0af1",
+        "name": "Generic HTTP Request",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 890,
+        "y": 80,
+        "wires": [
+            [
+                "a1bf0740af11e891"
+            ]
+        ]
+    },
+    {
+        "id": "a1bf0740af11e891",
+        "type": "function",
+        "z": "b54b23cb614d0af1",
+        "name": "Prepare Start Charging",
+        "func": "var sonnen_ip = global.get(\"sonnen_api_ip\");\nvar sonnen_token = global.get(\"sonnen_api_token\");\nvar sonnen_watts = global.get(\"sonnen_charge_watts\");\n\nvar endpoint = \"/api/v2/setpoint/charge/\" + sonnen_watts;\n\nmsg.url = \"http://\" + sonnen_ip + endpoint;\nmsg.method = \"POST\"\nmsg.headers = {};\nmsg.headers['Auth-Token'] = sonnen_token;\nmsg.payload = {};\n\n//since the BatteryCharging status is unreliable/unpredictable, I have to set a flag in the global context.\n\nglobal.set(\"isBatteryCharging\", true);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1170,
+        "y": 80,
+        "wires": [
+            [
+                "7594195ea36296d1"
+            ]
+        ]
+    },
+    {
+        "id": "7594195ea36296d1",
+        "type": "http request",
+        "z": "b54b23cb614d0af1",
+        "name": "Generic HTTP Request",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1450,
+        "y": 80,
+        "wires": [
+            [
+                "842db788ce0f471f"
+            ]
+        ]
+    },
+    {
+        "id": "842db788ce0f471f",
+        "type": "switch",
+        "z": "b54b23cb614d0af1",
+        "name": "Charging ok?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "false"
+            },
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1690,
+        "y": 80,
+        "wires": [
+            [
+                "79512febc2a00a5c"
+            ],
+            [
+                "55e5b79c18a638a8"
+            ]
+        ]
+    },
+    {
+        "id": "79512febc2a00a5c",
+        "type": "tibber-notify",
+        "z": "b54b23cb614d0af1",
+        "name": "Warning",
+        "active": true,
+        "apiEndpointRef": "ef1fb0c70913c681",
+        "notifyTitle": "\"WARNING\"",
+        "notifyMessage": "\"Battery won't charge\"",
+        "notifyScreen": "",
+        "x": 1880,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "885810cbd4a4ef4d",
+        "type": "subflow:c303c08096ca06f0",
+        "z": "b54b23cb614d0af1",
+        "name": "",
+        "x": 520,
+        "y": 240,
+        "wires": [
+            [
+                "f3712eacfa86c98e",
+                "9b5de9f823cc9126"
+            ]
+        ]
+    },
+    {
+        "id": "55e5b79c18a638a8",
+        "type": "delay",
+        "z": "b54b23cb614d0af1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "minutes",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 300,
+        "y": 240,
+        "wires": [
+            [
+                "885810cbd4a4ef4d"
+            ]
+        ]
+    },
+    {
+        "id": "38b347bddf5e6590",
+        "type": "function",
+        "z": "b54b23cb614d0af1",
+        "name": "nothingToDo_alreadyCharging",
+        "func": "node.warn(\"Nothing To Do, already charging\");\nnode.warn(\"Current SoC: \" + msg.payload.USOC);\nnode.warn(\"Desired SoC: \" + global.get(\"sonnen_target_soc\"));\nnode.warn(\"Current Cost: \" + global.get(\"currentCheapHour\").total);\n\n",
+        "outputs": 0,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "7e16183d47f8f981",
+        "type": "function",
+        "z": "b54b23cb614d0af1",
+        "name": "nothingToDo_chargingStopped",
+        "func": "node.warn(\"Charging has been stopped\");\nnode.warn(\"Current SoC: \" + msg.payload.USOC);\nnode.warn(\"Desired SoC: \" + global.get(\"sonnen_target_soc\"));\n\n\n",
+        "outputs": 0,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "4acf88cf4ee59011",
+        "type": "switch",
+        "z": "b54b23cb614d0af1",
+        "name": "SoC < Desired SoC?",
+        "property": "payload.USOC",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "sonnen_target_soc",
+                "vt": "global"
+            },
+            {
+                "t": "lt",
+                "v": "sonnen_target_soc",
+                "vt": "global"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1060,
+        "y": 400,
+        "wires": [
+            [
+                "58aed5301e38d673"
+            ],
+            [
+                "55e5b79c18a638a8"
+            ]
+        ]
+    },
+    {
+        "id": "f7d364f1fe8dda90",
+        "type": "subflow:eae36ce651e39938",
+        "z": "b54b23cb614d0af1",
+        "name": "SB Stop Charging",
+        "x": 1590,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "58aed5301e38d673",
+        "type": "function",
+        "z": "b54b23cb614d0af1",
+        "name": "calcChargedWh",
+        "func": "const startedWithWh = global.get(\"startChargeWh\");\nconst stoppingWithWh = msg.payload.RemainingCapacity_Wh;\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\nconst chargedWh = stoppingWithWh - startedWithWh;\n\nvar chargeLogArray = global.get(\"chargeLog\");\nif (chargeLogArray == null) {\n    chargeLogArray = [];\n}\n\nvar lastCharge = {};\n\nlastCharge.timeStamp = new Date();\nlastCharge.cost = global.get(\"currentCheapHour\").total;\nlastCharge.wattHours = chargedWh;\n\nchargeLogArray.push(lastCharge);\n\nnode.warn(\"desired Soc reached, stopping\");\nif (trace) {\n    node.log(\"added the following charge log entry:\");\n    node.log(JSON.stringify(lastCharge,null,2));\n    node.log(\"Full chargeLog as follows: --------------\");\n    node.log(JSON.stringify(chargeLogArray,null,2));\n    node.log(\"-----------------------------------------\");\n}\n\n\nglobal.set(\"chargeLog\", chargeLogArray);\n\n\nmsg.batteryMode = \"2\";\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 240,
+        "wires": [
+            [
+                "f7d364f1fe8dda90"
+            ]
+        ]
+    },
+    {
+        "id": "f3712eacfa86c98e",
+        "type": "debug",
+        "z": "b54b23cb614d0af1",
+        "name": "in delay loop",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 400,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "775aa518f64a102a",
+        "type": "function",
+        "z": "b54b23cb614d0af1",
+        "name": "alreadyCharging?",
+        "func": "/* ok, after having tested this for a couple of days, I can safely say that defining the status of\n\n\"is the battery charging\" by a combination of\n- operatingMode = \"1\" (battery is is manual/API mode)\n- isBatteryCharging\n\nis unreliable, I think mostly because the \"BatteryCharging\" status from the API is erroneous/unpredictable.\nSo, instead of relying on \n\nvar operatingMode = msg.payload.OperatingMode;\nvar isBatteryCharging = msg.payload.BatteryCharging;\n\nI will have to set a status in the global context and flip the switch on that.\n\n*/\n\nvar operatingMode = msg.payload.OperatingMode;\nvar isBatteryCharging = global.get(\"isBatteryCharging\");\n\nif (operatingMode == \"1\" && isBatteryCharging) {\n    //send to second output only, I'm already charging\n   \n    return [null, msg];\n\n} else {\n    //send to first output only, start charging\n    return [msg, null];\n}\n\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 80,
+        "wires": [
+            [
+                "4cb01b9109bbbf49"
+            ],
+            [
+                "38b347bddf5e6590"
+            ]
+        ]
+    },
+    {
+        "id": "9b5de9f823cc9126",
+        "type": "function",
+        "z": "b54b23cb614d0af1",
+        "name": "stillCharging?",
+        "func": "/* ok, after having tested this for a couple of days, I can safely say that defining the status of\n\n\"is the battery charging\" by a combination of\n- operatingMode = \"1\" (battery is is manual/API mode)\n- isBatteryCharging\n\nis unreliable, I think mostly because the \"BatteryCharging\" status from the API is erroneous/unpredictable.\nSo, instead of relying on \n\nvar operatingMode = msg.payload.OperatingMode;\nvar isBatteryCharging = msg.payload.BatteryCharging;\n\nI will have to set a status in the global context and flip the switch on that.\n\n*/\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\nvar operatingMode = msg.payload.OperatingMode;\nvar isBatteryCharging = global.get(\"isBatteryCharging\");\n\nif (trace) {\n    const desiredSoc = global.get(\"sonnen_target_soc\");\n    node.log(\"Target SoC: \" + desiredSoc);\n    node.log(\"Current SoC: \" + msg.payload.USOC);\n    node.log(\"OperatingMode: \" + operatingMode);\n    node.log(\"Global: isBatteryCharging:\" + isBatteryCharging);\n\n}\n\n\n\n\nif (operatingMode == \"1\" && isBatteryCharging) {\n    //send to second output only, I'm still charging in manual/API mode\n    if (trace) {\n         node.log(\"Still charging, in charging loop\");\n    }\n    return [null, msg];\n\n} else {\n    if (trace) {\n         node.log(\"Not charging, breaking charging loop\");\n    }\n    //send to first output only, charging has been stopped in main flow\n    return [msg, null];\n}\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 240,
+        "wires": [
+            [
+                "7e16183d47f8f981"
+            ],
+            [
+                "4acf88cf4ee59011"
+            ]
+        ]
+    },
+    {
+        "id": "13c17612bd24f315",
+        "type": "inject",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "3600",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "{   viewer {     homes {       currentSubscription {         priceInfo {           today {             total             startsAt           }           tomorrow {             total             startsAt           }         }       }     }   } }",
+        "payloadType": "str",
+        "x": 320,
+        "y": 240,
+        "wires": [
+            [
+                "70335db764206430"
+            ]
+        ]
+    },
+    {
+        "id": "70335db764206430",
+        "type": "tibber-query",
+        "z": "9c9f23e35e225b55",
+        "name": "GetPrices",
+        "active": true,
+        "apiEndpointRef": "ef1fb0c70913c681",
+        "x": 590,
+        "y": 240,
+        "wires": [
+            [
+                "6601e57ce73b3cae"
+            ]
+        ]
+    },
+    {
+        "id": "409403f98f26f271",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1390,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "6601e57ce73b3cae",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "getCheapestHours",
+        "func": "const prices = msg.payload.viewer.homes[0].currentSubscription.priceInfo;\nconst today = prices.today;\nconst tomorrow = prices.tomorrow;\nconst userMaxPrice = flow.get(\"maxPrice\");\nconst lossFactor = flow.get(\"conversion_loss_factor\"); //e.g. 1.2 for 20% loss\nconst maxPriceFactor = 1 - (lossFactor - 1); \n//the above doesn't work above lossFactor > 2, but that would also mean 100% loss in conversion...\n//in that case, I'm happy you have a warm home because 100% of your power is converted into heat ;-)\n\n//tomorrow = [];\n\n/* First, let's get all available prices (today and if possible tomorrow).\n   \n   NEW (2024-01-06) two options:\n   1) (default) calc the average (arithmetic mean) and use this as the basis for further calculation\n   2) take the 5 most expensive and use their average. Reason: Let's see we have something in the battery to cover those expensive hours\n\n   then, reduce the list to all that are <factor> below the average AND below the maxPrice\n\n   \n   There surely are be better algorithms to calculate what a good charging price is, \n   suggestions are very welcome! \n   Create an issue or a discussion here: \n   https://github.com/orgs/sonnen-tools/discussions\n   https://github.com/sonnen-tools/node-red/issues \n\n   The \"shouldIBeCharging\" node takes the resulting list and just checks if the current timestamp is within\n   one of the \"cheapHours\"\n\n\n\n*/\n\nvar calcMode = flow.get(\"calcMode\");\ncalcMode = (calcMode !== \"average_all\" && calcMode !== \"average_five\") ? \"average_all\" : calcMode;\n/* currently supported values:\naverage_all - use the average of all values\naverage_five - use the average of the five most expensive hours\nall other values will default to \"average_all\"\n*/\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\nif (trace) {\n   node.log(\"Trace enabled\");\n   node.log(\"calcMode: \" + calcMode);\n}\n\n\n\nconst allPrices = today.concat(tomorrow);\n\n// Extract the \"total\" values from the data\nconst totalValues = allPrices.map(entry => entry.total);\n\n// Calculate the arithmetic mean\nconst averageAll = totalValues.reduce((sum, value) => sum + value, 0) / totalValues.length;\n\n// Sort the prices by \"total\" values in descending order\nconst sortedPrices = allPrices.slice().sort((a, b) => b.total - a.total);\n\n// Extract the \"total\" values of the top 5 items\nconst top5TotalValues = sortedPrices.slice(0, 5).map(entry => entry.total);\n\n// Calculate the average of the top 5 \"total\" values\nconst averageTop5Total = top5TotalValues.reduce((sum, value) => sum + value, 0) / top5TotalValues.length;\n\nvar averagePrice = 0;\n\nswitch (calcMode) {\n    case \"average_all\":\n        averagePrice = averageAll;\n        \n        break;\n\n    case \"average_five\":\n        averagePrice = averageTop5Total;\n        \n        break;\n    \n    default:\n        \n        node.log(\"We should never see this....\");\n}\n\n\nconst calculatedMaxPrice = averagePrice * maxPriceFactor;\n\nconst maxPrice = Math.min(calculatedMaxPrice, userMaxPrice); //use whichever is lower\n\nif (trace) {\n   node.log(\"averagePrice: \" + averagePrice);\n   node.log(\"averagePrice_all: \" + averageAll);\n   node.log(\"averagePrice top 5: \" + averageTop5Total);\n   node.log(\"maxPrice (factored):\" + calculatedMaxPrice);\n   node.log(\"userMaxPrice set to \" + userMaxPrice);\n   node.log(\"maxPrice set to \" + maxPrice);\n}\n\nflow.set(\"averagePrice\", averagePrice.toFixed(4));\nflow.set(\"averageAll\", averageAll.toFixed(4));\nflow.set(\"average_top_5\", averageTop5Total.toFixed(4));\nflow.set(\"calculatedMaxPrice\", calculatedMaxPrice.toFixed(4));\nflow.set(\"effectiveMaxPrice\", maxPrice.toFixed(4));\n\n//keep only those below or equal to maxPrice\nvar cheapHours = allPrices.filter(obj => obj.total <= maxPrice);\n\n// Sorting the array by the \"total\" property\ncheapHours.sort((a, b) => a.total - b.total);\n\n\n//store in flow context\n//memory is fine, since it will update on the next run\n\nflow.set(\"cheapHours\", cheapHours);\n\nif (trace) {\n   node.log(\"CheapHours found:\");\n   node.log(JSON.stringify(cheapHours,null,2));\n}\n\nmsg.cheapHours = cheapHours;\nmsg.maxPrice = maxPrice;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 360,
+        "wires": [
+            [
+                "97270c74969a2de8",
+                "1c5c1bd30b42c31b"
+            ]
+        ]
+    },
+    {
+        "id": "97270c74969a2de8",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1390,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "25fb35e6ff744293",
+        "type": "config",
+        "z": "9c9f23e35e225b55",
+        "name": "Cheapest Hours Config",
+        "properties": [
+            {
+                "p": "maxPrice",
+                "pt": "flow",
+                "to": "0.316",
+                "tot": "num"
+            },
+            {
+                "p": "conversion_loss_factor",
+                "pt": "flow",
+                "to": "1.1",
+                "tot": "str"
+            },
+            {
+                "p": "loglevel",
+                "pt": "global",
+                "to": "TRACE",
+                "tot": "str"
+            },
+            {
+                "p": "calcMode",
+                "pt": "flow",
+                "to": "average_five",
+                "tot": "str"
+            },
+            {
+                "p": "pvSurplusThreshold",
+                "pt": "flow",
+                "to": "50",
+                "tot": "num"
+            },
+            {
+                "p": "wallboxDetectionThreshold",
+                "pt": "flow",
+                "to": "9000",
+                "tot": "num"
+            }
+        ],
+        "active": true,
+        "x": 390,
+        "y": 60,
+        "wires": [],
+        "info": "**flow.maxPrice**\n\nThe maximum price that would still be considered \"cheap\"\n\n**NOTE:** \nWe need to consider a conversion loss of roughly 20%,\nso setting to 0.25EUR/kWh effectively means using it at 0.25*1.2=0.30ct/kWh\n\nStill cheap compared to my previous contract (0.382)\n\n**flow.conversion_loss_factor**\n\n1.2 equals 20% conversion loss \n(Grid -> Inverter -> Battery -> Inverter -> Home Use)\nYour mileage may vary, but you can change it here.\nThis is used when determining if the battery should\nbe allowed to discharge\n(Doesn't make sense to discharge if the current grid cost is lower than\nwhat you charged for * <i>conversion_loss_factor</i>)"
+    },
+    {
+        "id": "b4c1cf61db01c1c4",
+        "type": "inject",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "120",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "10",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 490,
+        "y": 620,
+        "wires": [
+            [
+                "b853fcd9ee1442e2"
+            ]
+        ]
+    },
+    {
+        "id": "b853fcd9ee1442e2",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "shouldIBeCharging?",
+        "func": "const timeStamp = msg.payload;\n\nconst cheapHours = flow.get(\"cheapHours\");\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\nif (trace) {\n  const numCheapHours = cheapHours.length;\n  if (numCheapHours > 0) {\n    node.log(numCheapHours + \" cheapHours found\");\n  } else {\n    node.log(\"NO CHEAP HOURS FOUND\");\n  }\n \n}\n\n\n// Convert the timestamp to a Date object\nconst timestampDate = new Date(timeStamp);\n\n\n// Function to check if a startsAt date is within the full hour of a given date\nfunction isWithinFullHour(startsAtDate, referenceDate) {\n  return (\n    startsAtDate.getDate() === referenceDate.getDate() &&\n    startsAtDate.getHours() === referenceDate.getHours()\n  );\n}\n\nvar matchingObject = cheapHours.find(item => {\n  const startsAtDate = new Date(item.startsAt);\n  return isWithinFullHour(startsAtDate, timestampDate);\n});\n\nif (typeof matchingObject === 'undefined') {\n  matchingObject = null;\n}\n\n// Output the result\nnode.warn(\"In a cheap hour? \" + (matchingObject !== null));\nif (matchingObject !== null){\n  node.warn(JSON.stringify(matchingObject,null,2));\n} else {\n  node.warn(\"not within a cheap Hour\");\n}\n\n\nif (matchingObject !== null) {\n  global.set(\"currentCheapHour\", matchingObject);\n}\n\nif (matchingObject !== null) {\n   node.status({ fill: \"green\", shape: \"dot\", text: \"yes - charge\" });\n   if(trace){\n     node.log(\"GREEN - yes - charge\");\n   }\n   return [ msg, null ];\n} else {\n   node.status({ fill: \"red\", shape: \"dot\", text: \"no - don't charge\" });\n  if (trace) {\n    node.log(\"RED - no - don't charge\");\n  }\n   return [ null, msg ];\n}\n\n\n\n\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 790,
+        "y": 620,
+        "wires": [
+            [
+                "6f3d527d063f11a4",
+                "63370811b55662d8"
+            ],
+            [
+                "8e4f8040c8caf3f9",
+                "d729113d03fda4ee"
+            ]
+        ]
+    },
+    {
+        "id": "6f3d527d063f11a4",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 13",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1030,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "86807f99895aecc9",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "convertToEpoch",
+        "func": "const timeString = msg.payload;\n\n\n// Create a Date object from the time string\nconst dateObject = new Date(timeString);\n\n// Get the numerical epoch value (timestamp)\nconst timestamp = dateObject.getTime();\n\nmsg.payload = timestamp;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 820,
+        "wires": [
+            [
+                "a735ec8a479de24f",
+                "b853fcd9ee1442e2"
+            ]
+        ]
+    },
+    {
+        "id": "1b5f65032ae85a60",
+        "type": "inject",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "date"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "2024-01-07T05:00:00.000+01:00",
+        "payloadType": "str",
+        "x": 480,
+        "y": 820,
+        "wires": [
+            [
+                "86807f99895aecc9"
+            ]
+        ]
+    },
+    {
+        "id": "a735ec8a479de24f",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 14",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1060,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "2f66aac7f1b3209b",
+        "type": "config",
+        "z": "9c9f23e35e225b55",
+        "name": "SonnenBatterie Config",
+        "properties": [
+            {
+                "p": "sonnen_api_ip",
+                "pt": "global",
+                "to": "192.168.2.108",
+                "tot": "str"
+            },
+            {
+                "p": "sonnen_api_token",
+                "pt": "global",
+                "to": "215ddea7-dff9-421b-8744-ee2504f9ec0e",
+                "tot": "str"
+            },
+            {
+                "p": "sonnen_target_soc",
+                "pt": "global",
+                "to": "97",
+                "tot": "num"
+            },
+            {
+                "p": "sonnen_charge_watts",
+                "pt": "global",
+                "to": "4500",
+                "tot": "num"
+            },
+            {
+                "p": "sonnen_discharge_control",
+                "pt": "flow",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "active": true,
+        "x": 680,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e83eb00756943d1c",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 15",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1540,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "63370811b55662d8",
+        "type": "subflow:c303c08096ca06f0",
+        "z": "9c9f23e35e225b55",
+        "name": "SB Get Status",
+        "x": 1280,
+        "y": 580,
+        "wires": [
+            [
+                "e83eb00756943d1c",
+                "10213f7981421e7d"
+            ]
+        ]
+    },
+    {
+        "id": "317d829657359682",
+        "type": "switch",
+        "z": "9c9f23e35e225b55",
+        "name": "SoC < Desired SoC?",
+        "property": "payload.USOC",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "sonnen_target_soc",
+                "vt": "global"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1720,
+        "y": 580,
+        "wires": [
+            [
+                "b156fc1ef69d83f4",
+                "dc5ed5eea341dbd0"
+            ]
+        ]
+    },
+    {
+        "id": "d729113d03fda4ee",
+        "type": "subflow:c303c08096ca06f0",
+        "z": "9c9f23e35e225b55",
+        "name": "SB Get Status",
+        "x": 1280,
+        "y": 740,
+        "wires": [
+            [
+                "8d5f7f05bcc418c1"
+            ]
+        ]
+    },
+    {
+        "id": "8e4f8040c8caf3f9",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1030,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "cf19c82c3716b70b",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 17",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2070,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "1854be3a5071ba0b",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 18",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2050,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "b156fc1ef69d83f4",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 19",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1890,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "dc5ed5eea341dbd0",
+        "type": "subflow:b54b23cb614d0af1",
+        "z": "9c9f23e35e225b55",
+        "name": "SB Charge",
+        "x": 1960,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "9a647bfe3d8b2549",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "calcChargedWh",
+        "func": "const startedWithWh = global.get(\"startChargeWh\");\nconst stoppingWithWh = msg.payload.RemainingCapacity_Wh;\n\nconst chargedWh = stoppingWithWh - startedWithWh;\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\n\n\n\nvar chargeLogArray = global.get(\"chargeLog\");\nif (chargeLogArray == null) {\n    chargeLogArray = [];\n}\n\nvar lastCharge = {};\n\nlastCharge.timeStamp = new Date();\nlastCharge.cost = global.get(\"currentCheapHour\").total\nlastCharge.wattHours = chargedWh;\n\nchargeLogArray.push(lastCharge);\n\nglobal.set(\"chargeLog\", chargeLogArray);\n\n\nif (trace) {\n    node.log(\"added the following charge log entry:\");\n    node.log(JSON.stringify(lastCharge,null,2));\n    node.log(\"Full chargeLog as follows: --------------\");\n    node.log(JSON.stringify(chargeLogArray,null,2));\n    node.log(\"-----------------------------------------\");\n}\n\n\n\n\n\n\nmsg.batteryMode = \"2\";\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1950,
+        "y": 720,
+        "wires": [
+            [
+                "4f934f70afe1fa27"
+            ]
+        ]
+    },
+    {
+        "id": "792b4c43435ddb68",
+        "type": "inject",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 960,
+        "y": 60,
+        "wires": [
+            [
+                "1f11081a3bf9e6fc"
+            ]
+        ]
+    },
+    {
+        "id": "1f11081a3bf9e6fc",
+        "type": "change",
+        "z": "9c9f23e35e225b55",
+        "name": "Cleanup Global Context",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "chargeLog",
+                "pt": "global"
+            },
+            {
+                "t": "delete",
+                "p": "currentCheapHour",
+                "pt": "global"
+            },
+            {
+                "t": "delete",
+                "p": "lastChargedPrice",
+                "pt": "global"
+            },
+            {
+                "t": "delete",
+                "p": "lastChargedWh",
+                "pt": "global"
+            },
+            {
+                "t": "delete",
+                "p": "startChargeWh",
+                "pt": "global"
+            },
+            {
+                "t": "delete",
+                "p": "tibber_tomorrow",
+                "pt": "global"
+            },
+            {
+                "t": "delete",
+                "p": "tibber_today",
+                "pt": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1270,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1c5c1bd30b42c31b",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "storeAllPrices",
+        "func": "var prices = msg.payload.viewer.homes[0].currentSubscription.priceInfo;\nvar today = prices.today;\nvar tomorrow = prices.tomorrow;\nvar tomorrow_high = {};\nvar tomorrow_low = {};\nvar tomorrow_avg = 0.0;\nconst cheapHours = msg.cheapHours; \nconst maxPrice = msg.maxPrice;\n\n\nglobal.set(\"tibber_today\", today);\n\nvar ctx_tomorrow = global.get(\"tibber_tomorrow\");\nif (typeof ctx_tomorrow === 'undefined') {\n  ctx_tomorrow = [];\n}\n\nglobal.set(\"tibber_tomorrow\", tomorrow);\n\nif (ctx_tomorrow.length == 0 && tomorrow.length > 0) {\n\n  node.warn(\"new prices are here\");\n  // Find entry with the lowest \"total\" value\n  tomorrow_low = tomorrow.reduce((min, obj) => (obj.total < min.total ? obj : min), tomorrow[0]);\n\n  // Find entry with the highest \"total\" value\n  tomorrow_high = tomorrow.reduce((max, obj) => (obj.total > max.total ? obj : max), tomorrow[0]);\n\n  const totalSum = tomorrow.reduce((sum, obj) => sum + obj.total, 0);\n  tomorrow_avg = totalSum / tomorrow.length; //should always be 24, but...whatever.\n\n\n  node.warn(\"Lowest Price: \" + tomorrow_low.total + \" at \" + tomorrow_low.startsAt);\n  node.warn(\"Highest Price: \" + tomorrow_high.total + \" at \" + tomorrow_high.startsAt);\n  node.warn(\"Average: \" + tomorrow_avg);\n\n  msg.payload.title = \"Updated prices for tomorrow!\";\n  msg.payload.screen = \"HOME\";\n\n  var message = \"Low: \" + tomorrow_low.total + \" - High: \" + tomorrow_high.total + \" - Average: \" + tomorrow_avg.toFixed(4);\n\n  message = message + \" - MaxPrice for charging: \" + maxPrice;\n  message = message + \" - \" + cheapHours.length + \" slots for charging identified\";\n\n  msg.payload.message = message;\n\n  \n  return [ msg, null ];\n} else {\n  return [ null, msg ];\n}\n\n\n\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 200,
+        "wires": [
+            [
+                "2f2eefd59e632aec"
+            ],
+            [
+                "409403f98f26f271"
+            ]
+        ]
+    },
+    {
+        "id": "2f2eefd59e632aec",
+        "type": "tibber-notify",
+        "z": "9c9f23e35e225b55",
+        "name": "New Price Notify",
+        "active": true,
+        "apiEndpointRef": "ef1fb0c70913c681",
+        "notifyTitle": "",
+        "notifyMessage": "",
+        "notifyScreen": "",
+        "x": 1400,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "7bba8ec851f5517d",
+        "type": "switch",
+        "z": "9c9f23e35e225b55",
+        "name": "DischargeControl on?",
+        "property": "sonnen_discharge_control",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1960,
+        "y": 860,
+        "wires": [
+            [
+                "1854be3a5071ba0b",
+                "a4b1d26f80fa6370"
+            ]
+        ]
+    },
+    {
+        "id": "a4b1d26f80fa6370",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "calculateDischargeCost",
+        "func": "/*    \n    This control flow aims at avoiding battery discharge when the price is low anyway (lower than the \n    average cost of what we charged * conversion_loss_factor) \n*/\n\nvar charges = global.get(\"chargeLog\");\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\n\nif (typeof charges === 'undefined'){\n  charges = [];\n}\n\n/*  \n    Discarding any charge events older than 24 hours (assuming we have probably used them), to keep the average price\n    of stored energy somewhat accurate.\n    This is \"brute force\", I know - but keeping track of how much has actually been used between charge events\n    *might* be possible, but is currently a bit beyond the scope of this iteration.\n    Also, this doesn't take into account that any PV surplus stored will significantly lower the average!\n    During Summer, when the PV is constantly filling the battery, it will be best to set the\n    \"sonnen_discharge_control\" config variable to false, allowing the SonnenBatterie to manage itself.\n\n    If you have suggestions on how this could be implemented, feel free to open an issue or leave a comment\n    https://github.com/orgs/sonnen-tools/discussions\n    https://github.com/sonnen-tools/node-red/issues \n\n*/\n\n//using this for the average calculation\nconst aDayAgo = new Date();\naDayAgo.setHours(aDayAgo.getHours() - 24);\n\n\nconst currentCharges = charges.filter(obj => new Date(obj.timeStamp) > aDayAgo);\n\n\n\n\n\n\ncurrentCharges.forEach(obj => {\n  obj.total = obj.cost * obj.wattHours;\n});\n\n\nconst totalSum = currentCharges.reduce((acc, obj) => acc + obj.total, 0);\nconst wattHoursSum = currentCharges.reduce((acc, obj) => acc + obj.wattHours, 0);\n\nconst averageCost = totalSum / wattHoursSum;\nnode.warn(\"avg: \" + averageCost);\n\nif (trace) {\n    node.log(\"Calculated Battery Average Cost from the last 24hours is \" + averageCost.toFixed(4));\n}\n\nmsg.batteryCharges = currentCharges;\nmsg.batteryAverageCost = averageCost;\n\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2250,
+        "y": 860,
+        "wires": [
+            [
+                "b49e40ab0cd9b421"
+            ]
+        ]
+    },
+    {
+        "id": "8d5f7f05bcc418c1",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "amICharging?",
+        "func": "/* ok, after having tested this for a couple of days, I can safely say that defining the status of\n\n\"is the battery charging\" by a combination of\n- operatingMode = \"1\" (battery is is manual/API mode)\n- isBatteryCharging\n\nis unreliable, I think mostly because the \"BatteryCharging\" status from the API is erroneous/unpredictable.\nSo, instead of relying on \n\nvar operatingMode = msg.payload.OperatingMode;\nvar isBatteryCharging = msg.payload.BatteryCharging;\n\nI will have to set a status in the global context and flip the switch on that.\n\n*/\n\nvar operatingMode = msg.payload.OperatingMode;\nvar isBatteryCharging = global.get(\"isBatteryCharging\");\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\nif (trace) {\n    const desiredSoc = global.get(\"sonnen_target_soc\");\n    node.log(\"Target SoC: \" + desiredSoc);\n    node.log(\"Current SoC: \" + msg.payload.USOC);\n    node.log(\"OperatingMode: \" + operatingMode);\n    node.log(\"Global: isBatteryCharging:\" + isBatteryCharging);\n\n}\n\n\nif (operatingMode == \"1\" && isBatteryCharging) {\n    //send to first output only\n    if (trace) {\n        node.log(\"Battery is still charging but shouldn't be, going to stop charging\");\n    }\n    return [msg, null];\n\n} else {\n    //send to second output only\n    if (trace) {\n        node.log(\"Battery isn't charging, discharge control is \" + flow.get(\"sonnen_discharge_control\"));\n    }\n    \n    return [null, msg];\n}\n\n\n\n\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1660,
+        "y": 740,
+        "wires": [
+            [
+                "9a647bfe3d8b2549",
+                "cf19c82c3716b70b"
+            ],
+            [
+                "7bba8ec851f5517d"
+            ]
+        ]
+    },
+    {
+        "id": "746bdb22596597e3",
+        "type": "inject",
+        "z": "9c9f23e35e225b55",
+        "name": "inject batteryMode = 2",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "batteryMode",
+                "v": "2",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 2400,
+        "y": 600,
+        "wires": [
+            [
+                "4f934f70afe1fa27"
+            ]
+        ]
+    },
+    {
+        "id": "b49e40ab0cd9b421",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "shouldIDischarge?",
+        "func": "//get the current Tibber Price and compare to what we charged the battery with * lossFactor\n//if we current prices are cheaper, we should stop the battery from discharging\n\n\nconst today = global.get(\"tibber_today\");\n\nconst globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\n\nconst lossFactor = flow.get(\"conversion_loss_factor\"); //e.g. 1.2 for 20% loss\nconst batteryPrice = msg.batteryAverageCost;\nconst factoredBatteryAverage = batteryPrice * lossFactor;\nconst stateOfCharge = msg.payload.USOC; \nconst operatingMode = msg.payload.OperatingMode;\n\nconst surplusThreshold = flow.get(\"pvSurplusThreshold\");\nconst wbDetectionThreshold = flow.get(\"wallboxDetectionThreshold\");\n\nconst currentFeedIn = msg.payload.GridFeedIn_W;\nconst currentProduction = msg.payload.Production_W;\nconst currentConsumption = msg.payload.Consumption_W;\nconst surplus = currentProduction - currentConsumption;\n\n\n\n\n\nconst now = new Date();\n\n// Function to check if a startsAt date is within the full hour of a given date\nfunction isWithinFullHour(startsAtDate, referenceDate) {\n  return (\n    startsAtDate.getDate() === referenceDate.getDate() &&\n    startsAtDate.getHours() === referenceDate.getHours()\n  );\n}\n\nconst matchingPrice = today.find(item => {\n  const startsAtDate = new Date(item.startsAt);\n  return isWithinFullHour(startsAtDate, now);\n});\n\nconst currentPrice = matchingPrice.total;\n\n//node.warn(\"SoC \" + stateOfCharge);\nif (stateOfCharge == 0) {\n\n  //battery is empty, so we can clean up the charge log\n  const emptyChargeLog = [];\n  global.set(\"chargeLog\", emptyChargeLog);\n\n  node.status({ fill: \"yellow\", shape: \"dot\", text: \"Battery empty\" });\n  if (trace) {\n    node.log(\"The battery is empty, deleting charge log.\");\n  }\n  \n  \n  flow.set(\"dcCurrentPrice\", currentPrice);\n  flow.set(\"dcBatteryPrice\", \" - \");\n  flow.set(\"dcSurplus\", surplus);\n  flow.set(\"dcStatus\", \"Battery empty\");\n\n  \n  \n  //there's nothing to do, but we should check if we need to reset the battery to default (self-consumption) mode so it can pickup surplus\n  //want to avoid the situation where we ended with OM=1 on discharge (shouldn't happen, but maybe a run condition leads to that)\n  //and then never change it back, so it stays at 0% and can't charge until we tell it to charge from grid again.\n\n  if (operatingMode == \"1\") {\n    if (trace) {\n      node.log(\"Battery empty but OM=1 (manual/API) detected. Resetting to default (self-consumption)\");\n    }\n    msg.batteryMode = \"2\";\n    return [msg, null];\n  } else {\n    //goes to second output\n    return [null, msg];\n  }\n}\n\nif (currentConsumption > wbDetectionThreshold) {\n  /* we have detected consumption above a threshold, probably a car charger / wallbox. \n  If we don't want the wallbox to suck the battery empty in no time, we need to stop discharging here.\n  If it goes below that threshold again, the code will continue below and decide if it should be allowed\n  to discharge based on Tibber prices.\n  If it is charging anyway, we won't be in this flow (\"shouldIBeCharging\") will have forwarded the message to the charging flow\n  \n  */\n\n  node.status({ fill: \"black\", shape: \"dot\", text: \"High load detected (Wallbox?) - \"+ currentConsumption +\" W - switching off discharging\"});\n  if (trace) {\n      node.log(\"Surplus: \" + surplus);\n      node.log(\"Current Price is \" + currentPrice);\n      node.log(\"Battery Price incl conversion loss is \" + factoredBatteryAverage.toFixed(4));\n      node.log(\"Loss factor: \" + lossFactor);\n      node.log(\"BLACK - High load detected (Wallbox?)\");\n      node.log(currentConsumption + \" W - switching off discharging\");\n    }\n    flow.set(\"dcCurrentPrice\", currentPrice);\n    flow.set(\"dcBatteryPrice\", factoredBatteryAverage.toFixed(4));\n    flow.set(\"dcSurplus\", surplus);\n    flow.set(\"dcStatus\", \"High load detected (Wallbox?) \" + currentConsumption + \" W - switching off discharging\");\n\n    msg.batteryMode = \"1\";\n\n    return [msg, null]; //flow ends here after passing on message\n}\n\n\n\n\n\n\n\n\n\nif (currentPrice > factoredBatteryAverage){\n/* The Battery should be allowed to discharge (normal mode, OM=2), since \n   the current Tibber Price is higher than the adjusted average of the battery\n\n*/\n  node.status({ fill: \"green\", shape: \"dot\", text: \"yes - Tibber: \" + currentPrice + \" battery: \" + factoredBatteryAverage.toFixed(4) });\n  if (trace) {\n    node.log(\"Surplus: \" + surplus);\n    node.log(\"Current Price is \" + currentPrice);\n    node.log(\"Battery Price incl conversion loss is \" + factoredBatteryAverage.toFixed(4));\n    node.log(\"Loss factor: \" + lossFactor);\n    node.log(\"GREEN - discharging allowed, setting Battery to self-consumption mode\");\n  }\n  flow.set(\"dcCurrentPrice\", currentPrice);\n  flow.set(\"dcBatteryPrice\", factoredBatteryAverage.toFixed(4));\n  flow.set(\"dcSurplus\", surplus);\n  flow.set(\"dcStatus\", \"Discharging allowed, setting Battery to self-consumption mode\");\n  msg.batteryMode = \"2\";\n  \n} else {\n/* The Battery should not be allowed to discharge, \n   since the current Tibber Price is below the factored average of what's in the battery \n   (setting to manual mode, so now it is neither charging nor discharging until we tell it to)\n\n     if our production exceeds our consumption, we have surplus.\n     in that case, we shouldn't set the battery to \"idle\" because this would also stop the battery \n     from picking up our surplus.\n\n     Using a threshold, so we're not switching if we have just a little surplus (due to switching loads, etc.)\n\n*/ \n\n  if (surplus > surplusThreshold) {\n\n    node.status({ fill: \"blue\", shape: \"dot\", text: \"no, but we have surplus: \" + surplus });\n    if(trace) {\n      node.log(\"Surplus detected: \"+ surplus);\n      node.log(\"Current Price is \" + currentPrice);\n      node.log(\"Battery Price incl conversion loss is \" + factoredBatteryAverage.toFixed(4));\n      node.log(\"Loss factor: \" + lossFactor);\n      node.log(\"BLUE - we shouldn't discharge but we have surplus\");\n      node.log(\"setting Battery to self-consumption mode\");\n    }\n    flow.set(\"dcCurrentPrice\", currentPrice);\n    flow.set(\"dcBatteryPrice\", factoredBatteryAverage.toFixed(4));\n    flow.set(\"dcSurplus\", surplus);\n    flow.set(\"dcStatus\", \"We shouldn't discharge (Tibber is currently cheaper than what's in the battery) but we have surplus\");\n    msg.batteryMode = \"2\";\n\n  } else {\n    node.status({ fill: \"red\", shape: \"dot\", text: \"no - Tibber: \" + currentPrice + \" battery: \" + factoredBatteryAverage.toFixed(4) });\n    if (trace) {\n      node.log(\"Surplus: \" + surplus);\n      node.log(\"Current Price is \" + currentPrice);\n      node.log(\"Battery Price incl conversion loss is \" + factoredBatteryAverage.toFixed(4));\n      node.log(\"Loss factor: \" + lossFactor);\n      node.log(\"RED - discharging not allowed, Tibber is currently cheaper than what's in the battery\");\n      node.log(\"Blocking battery discharge (OperatingMode 1, manual/API)\");\n    }\n    flow.set(\"dcCurrentPrice\", currentPrice);\n    flow.set(\"dcBatteryPrice\", factoredBatteryAverage.toFixed(4));\n    flow.set(\"dcSurplus\", surplus);\n    flow.set(\"dcStatus\", \"Discharging not allowed, Tibber is currently cheaper than what's in the battery\");\n\n    msg.batteryMode = \"1\";\n\n\n  }\n  \n}\n\nreturn [msg, null];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2490,
+        "y": 860,
+        "wires": [
+            [
+                "310b763806b46cc0"
+            ],
+            [
+                "5a687f3a6979b206"
+            ]
+        ]
+    },
+    {
+        "id": "5a687f3a6979b206",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 27",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2700,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "310b763806b46cc0",
+        "type": "subflow:eae36ce651e39938",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "x": 2710,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "4f934f70afe1fa27",
+        "type": "subflow:eae36ce651e39938",
+        "z": "9c9f23e35e225b55",
+        "name": "SB Stop Charging",
+        "x": 2270,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "a601aa3766b31ab7",
+        "type": "inject",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 960,
+        "y": 100,
+        "wires": [
+            [
+                "9560f196c3d2edb1"
+            ]
+        ]
+    },
+    {
+        "id": "9560f196c3d2edb1",
+        "type": "change",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "tibber_tomorrow",
+                "pt": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1290,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6e7a476bda10dda0",
+        "type": "comment",
+        "z": "9c9f23e35e225b55",
+        "name": "Version History",
+        "info": "# V0.0.3-WIP   2024-01-08\n- fixed https://github.com/sonnen-tools/node-red/issues/6\n- added pvSurplusThreshold, if surplus exceeds threshold, we won't set the battery to \"idle\" even if we shouldn't discharge\n  this way, the battery can pick up the surplus during times when the average cost of the battery is higher than the current Tibber price \n- added wallboxDetectionThreshold. If above (default 9000W) then the battery won't discharge\n\n\n\n# V0.0.2-WIP   2024-01-06\n- added flow.calcMode (average_all or average_five), calculates base average across all or across top 5m default is _all\n- added tooltip to prices on status page\n- added discharge control settings and values on status page\n\n\n# V0.0.1-WIP   2024-01-05   \n - started versioning, added some debug logging  \n -  - (enable via GLOBAL.loglevel = \"TRACE\" in Cheapest Hours Config) \n - added /status page\n - Bugfix: Tibber push was broken due to newlines (which Tibber doesn't like)  \n - Some minor fixes (formatting, etc) \n\n",
+        "x": 140,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "10213f7981421e7d",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "logSBStatus",
+        "func": "const globalLoglevel = global.get(\"loglevel\");\nconst trace = (globalLoglevel == \"TRACE\");\n\nif (trace) {\n    const desiredSoc = global.get(\"sonnen_target_soc\");\n    node.log(\"Target SoC: \" + desiredSoc);\n    node.log(\"Current SoC: \" + msg.payload.USOC);\n    node.log(\"SB Status: -------------------------------\");\n    node.log(JSON.stringify(msg.payload,null,2))\n    node.log(\"------------------------------------------\");\n\n}\n\n\n\n\n\n\n\n\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1490,
+        "y": 580,
+        "wires": [
+            [
+                "317d829657359682"
+            ]
+        ]
+    },
+    {
+        "id": "0fa7b6add0d9d865",
+        "type": "function",
+        "z": "9c9f23e35e225b55",
+        "name": "collectInfo",
+        "func": "const tibber_today = global.get(\"tibber_today\");\nconst tibber_tomorrow = global.get(\"tibber_tomorrow\");\n//const tibber_tomorrow = [];\nconst cheapHours = flow.get(\"cheapHours\");\nconst conversion_loss_factor = flow.get(\"conversion_loss_factor\");\nconst maxPrice = flow.get(\"maxPrice\");\nconst sonnen_discharge_control = flow.get(\"sonnen_discharge_control\");\n\nconst chargeLog = global.get(\"chargeLog\");\n\nconst currentSoc = msg.payload.USOC;\nconst operatingMode = msg.payload.OperatingMode;\n\nconst currentProduction = msg.payload.Production_W;\nconst currentConsumption = msg.payload.Consumption_W;\nconst surplus = currentProduction - currentConsumption;\n\nvar dcTableRows = \"\";\n\nif (sonnen_discharge_control) {\n   dcTableRows = \"<tr><td>Current Surplus</td><td>\" + surplus +  \n   \"</td></tr><tr><td>Current Tibber Price</td><td>\" + flow.get(\"dcCurrentPrice\") +  \n   \"</td></tr><tr><td>Battery Price (incl. loss)</td><td>\" + flow.get(\"dcBatteryPrice\") + \n   \"</td></tr><tr><td colspan=2 >\" + flow.get(\"dcStatus\") + \"</td></tr>\";\n} \n\n\n\n\n\n\nmsg.chargeLog = JSON.stringify(chargeLog);\nmsg.cheapHours = JSON.stringify(cheapHours);\nmsg.currentSoc = currentSoc;\nmsg.currentProduction = currentProduction;\nmsg.currentConsumption = currentConsumption;\nmsg.operatingMode = operatingMode;\nmsg.tibber_today = JSON.stringify(tibber_today);\nmsg.tibber_tomorrow = JSON.stringify(tibber_tomorrow);\nmsg.tibber_all = JSON.stringify(tibber_today.concat(tibber_tomorrow));\nmsg.displayMode = (operatingMode == \"1\" ? \"Manual / API controlled\" :\n                   operatingMode == \"2\" ? \"Automatic (Self-Consumption)\" :\n                  \"Unknown Mode\");\nmsg.displayDischargeControl = (sonnen_discharge_control) ? \"on\":\"off\";\nmsg.dcBatteryPrice = flow.get(\"dcBatteryPrice\");\nmsg.dcCurrentPrice = flow.get(\"dcCurrentPrice\");\nmsg.dcStatus = flow.get(\"dcStatus\");\nmsg.dcTableRows = dcTableRows;\n\n\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 980,
+        "wires": [
+            [
+                "f7a27f6079508209"
+            ]
+        ]
+    },
+    {
+        "id": "252a6a2a539c1e75",
+        "type": "http in",
+        "z": "9c9f23e35e225b55",
+        "name": "",
+        "url": "/status",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 490,
+        "y": 980,
+        "wires": [
+            [
+                "f7632c0ba036296d"
+            ]
+        ]
+    },
+    {
+        "id": "fe5e0144c64d59cc",
+        "type": "http response",
+        "z": "9c9f23e35e225b55",
+        "name": "statusPage",
+        "statusCode": "200",
+        "headers": {},
+        "x": 1690,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "a34e5598bca75053",
+        "type": "template",
+        "z": "9c9f23e35e225b55",
+        "name": "tableScripts",
+        "field": "payload.tableScripts",
+        "fieldType": "msg",
+        "format": "javascript",
+        "syntax": "mustache",
+        "template": "// Get the user's preferred language and region\nvar localeForDate = navigator.language || navigator.userLanguage;\n\nconsole.log(\"localeForDate \" + localeForDate);\n\n\n// Get the user's timezone identifier using Intl.DateTimeFormat\nvar userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;\n\nconsole.log(\"User's timezone:\", userTimezone);\n\n\n\n// Charge Log\n  var data = {{{chargeLog}}}\n\n  // Get the table element\n  var table = document.getElementById(\"chargeLogTable\");\n\n  // Populate the table with data\n  data.forEach(function(rowData) {\n    var row = table.insertRow(-1);\n    var localDate = new Date(rowData.timeStamp).toLocaleString(localeForDate, {\n      timeZone: userTimezone,\n      weekday: \"short\",\n      year: \"numeric\",\n      month: \"short\",\n      day: \"numeric\",\n      hour: \"numeric\",\n      minute: \"numeric\",\n      second: \"numeric\",\n      hour12: false,\n    });\n   \n    var values = [localDate, rowData.cost, rowData.wattHours];\n\n    values.forEach(function(value) {\n      var cell = row.insertCell(-1);\n      var text = document.createTextNode(value);\n      cell.appendChild(text);\n    });\n  });\n\n\n// Cheap Hours\n  data = {{{cheapHours}}}\n\n  // Get the table element\n  table = document.getElementById(\"cheapHoursTable\");\n\n  // Populate the table with data\n  data.forEach(function(rowData) {\n    var row = table.insertRow(-1);\n    var localDate = new Date(rowData.startsAt).toLocaleString(localeForDate, {\n         timeZone: userTimezone, \n         weekday: \"short\",\n         year: \"numeric\",\n         month: \"short\",\n         day: \"numeric\",\n         hour: \"numeric\",\n         minute: \"numeric\",\n         second: \"numeric\",\n         hour12: false,\n       });\n    var values = [localDate, rowData.total];\n\n    values.forEach(function(value) {\n      var cell = row.insertCell(-1);\n      var text = document.createTextNode(value);\n      cell.appendChild(text);\n    });\n  });\n\n",
+        "output": "str",
+        "x": 1230,
+        "y": 980,
+        "wires": [
+            [
+                "0491a8e02488d24f",
+                "23a3b902024ad4ee"
+            ]
+        ]
+    },
+    {
+        "id": "0491a8e02488d24f",
+        "type": "template",
+        "z": "9c9f23e35e225b55",
+        "name": "page",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <script src=\"https://d3js.org/d3.v5.min.js\"></script>\n  <title>SonnenBatterie Charge Control Status</title>\n  <style>\n    body {\n      font-family: 'Arial', sans-serif;\n    }\n\n    table {\n      border-collapse: collapse;\n      \n    }\n\n    th, td {\n      border: 1px solid #ddd;\n      padding: 8px;\n      text-align: left;\n      vertical-align: top;\n    }\n\n    th {\n      background-color: #f2f2f2;\n    }\n\n    .tooltip {\n    position: absolute;\n    background-color: white;\n    border: 1px solid #ccc;\n    padding: 10px;\n    pointer-events: none;\n\n    }\n  </style>\n\n  \n</head>\n<body>\n\n<br>\n<table id=\"hoursAndGraph\">\n<tr>\n  <td>\n    <table id=\"cheapHoursTable\">\n      <tr><th colspan=2>Cheap Hours</th></tr>\n      <tr>\n        <th>Starts at</th>\n        <th>Cost</th>\n      </tr>\n    </table>\n  </td>\n  <td>\n    <div id=\"bar-chart\" style=\"width: 800px; height: 400px; position: relative; border: 0px;\"></div>\n  </td>\n</tr>\n<tr>\n  <td>\n    <table id=\"averages\">\n      <tr><th colspan=2>Calculation</th></tr>\n      <tr>\n        <td>Calc Mode</td>\n        <td>{{{flow.calcMode}}}</td>\n      </tr>\n      <tr>\n        <td>Average All</td>\n        <td>{{{flow.averageAll}}}</td>\n      </tr>\n      <tr>\n        <td>Average Top 5</td>\n        <td>{{{flow.average_top_5}}}</td>\n      </tr>\n      <tr>\n        <td><b><i>Effective</i></b> Average Price</td><td>{{{flow.averagePrice}}}</td>\n      </tr>\n      <tr>\n        <td>Calculated Max (incl. loss)</td><td>{{{flow.calculatedMaxPrice}}}</td>\n      </tr>\n      <tr>\n        <td>User maxPrice</td><td>{{{flow.maxPrice}}}</td>\n      </tr>\n      <tr>\n        <td><b><i>Effective</i></b> Max for charging</td><td>{{{flow.effectiveMaxPrice}}}</td>\n      </tr>\n      <tr><td>Conversion loss</td><td>{{{flow.conversion_loss_factor}}}</td></tr>\n    </table>\n  </td>\n  <td>\n    <table id=\"miscTable\">\n      <tr><th colspan=2>Misc Values</th></tr>\n      <tr><td>isBatteryCharging</td><td>{{{global.isBatteryCharging}}}</td></tr>\n      <tr><td>Operatingmode</td><td>{{{displayMode}}}</td></tr>\n      <tr><td>Target SoC</td><td>{{{global.sonnen_target_soc}}}</td></tr>\n      <tr><td>Current SoC</td><td>{{{currentSoc}}}</td></tr>\n      <tr><td>Current Production</td><td>{{{currentProduction}}}</td></tr>\n      <tr><td>Current Consumption</td><td>{{{currentConsumption}}}</td></tr>\n      <tr style=\"background-color: #f2f2f2;\"><td>Discharge Control</td><td>{{{displayDischargeControl}}}</td>\n      {{{dcTableRows}}}\n    </table>\n\n  </td>\n</tr> \n<tr>\n  <td colspan=2>\n    <table id=\"chargeLogTable\">\n      <tr>\n        <th colspan=4>Charge Log</th>\n      </tr>\n      <tr>\n        <th>Timestamp</th>\n        <th>Cost</th>\n        <th>WattHours</th>\n      </tr>\n    </table>\n  </td>\n</tr> \n</table>\n\n<br>\n<br><br>\n\n\n<script>\n  {{{payload.tableScripts}}}\n  {{{payload.graphScripts}}}\n</script>\n\n</body>\n</html>\n",
+        "output": "str",
+        "x": 1390,
+        "y": 980,
+        "wires": [
+            [
+                "fe5e0144c64d59cc",
+                "28371b313433ad9f"
+            ]
+        ]
+    },
+    {
+        "id": "23a3b902024ad4ee",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 31",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1350,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "28371b313433ad9f",
+        "type": "debug",
+        "z": "9c9f23e35e225b55",
+        "name": "debug 32",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1530,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "f7632c0ba036296d",
+        "type": "subflow:c303c08096ca06f0",
+        "z": "9c9f23e35e225b55",
+        "name": "SB Get Status",
+        "x": 700,
+        "y": 980,
+        "wires": [
+            [
+                "0fa7b6add0d9d865"
+            ]
+        ]
+    },
+    {
+        "id": "f7a27f6079508209",
+        "type": "template",
+        "z": "9c9f23e35e225b55",
+        "name": "graphScripts",
+        "field": "payload.graphScripts",
+        "fieldType": "msg",
+        "format": "javascript",
+        "syntax": "mustache",
+        "template": "// Charge Log\n  var tibber = {{{tibber_all}}};\n  var cheapHours = {{{cheapHours}}};\n// {\"total\":0.3171,\"startsAt\":\"2024-01-05T00:00:00.000+01:00\"}\n\n/* Defined in \"tableScripts\", which is inserted in \"page\" before this, so it's already there, don't need to do it twice\n\n// Get the user's preferred language and region\nvar localeForDate = navigator.language || navigator.userLanguage;\n\nconsole.log(\"localeForDate \" + localeForDate);\n\n\n// Get the user's timezone identifier using Intl.DateTimeFormat\nvar userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;\n\nconsole.log(\"User's timezone:\", userTimezone);\n*/\n\n// Set up the SVG container\n  var svg = d3.select(\"#bar-chart\")\n              .append(\"svg\")\n              .attr(\"width\", 800)\n              .attr(\"height\", 400)\n              .style(\"position\", \"absolute\");\n\n  // Add a tooltip div\n  var tooltip = d3.select(\"#bar-chart\")\n                  .append(\"div\")\n                  .attr(\"class\", \"tooltip\")\n                  .style(\"opacity\", 0);      \n\n  // Set up scales for x and y axes\n  var xScale = d3.scaleTime()\n                 .domain(d3.extent(tibber, function(d) { return new Date(d.startsAt); }))\n                 .range([0, 700]);\n\n  var yScale = d3.scaleLinear()\n                 .domain([0, d3.max(tibber, function(d) { return d.total; })])\n                 .range([300, 0]);\n\n  // Create bars\n  svg.selectAll(\"rect\")\n     .data(tibber)\n     .enter()\n     .append(\"rect\")\n     .attr(\"x\", function(d) { return xScale(new Date(d.startsAt)); })\n     .attr(\"y\", function(d) { return yScale(d.total); })\n     .attr(\"width\", 10)\n     .attr(\"height\", function(d) { return 300 - yScale(d.total); })\n     .attr(\"fill\", function(d) {\n       return cheapHours.some(function(item) {\n         return item.total === d.total && item.startsAt === d.startsAt;\n       }) ? \"#01F9C6\" : \"#1569C7\";\n     })\n     // Add tooltip only for items in specialItems\n     .filter(function(d) {\n       return cheapHours.some(function(item) {\n         return item.total === d.total && item.startsAt === d.startsAt;\n       });\n     })\n     .on(\"mouseover\", function(d) {\n      // Convert startsAt to local timezone and date format\n       var localDate = new Date(d.startsAt).toLocaleString(localeForDate, {\n         timeZone: userTimezone, // Adjust the timezone as needed\n         weekday: \"short\",\n         year: \"numeric\",\n         month: \"short\",\n         day: \"numeric\",\n         hour: \"numeric\",\n         minute: \"numeric\",\n         second: \"numeric\",\n         hour12: false,\n       });\n\n       tooltip.transition()\n              .duration(200)\n              .style(\"opacity\", 0.9);\n       tooltip.html(\"Starts At: \" + localDate + \"<br/>Total: \" + d.total)\n              .style(\"left\", (d3.event.pageX - 300) + \"px\") \n              .style(\"top\", (d3.event.pageY - 28) + \"px\");\n     })\n     .on(\"mouseout\", function(d) {\n       tooltip.transition()\n              .duration(500)\n              .style(\"opacity\", 0);\n     });\n     \n\n  // Add x-axis\n  svg.append(\"g\")\n     .attr(\"transform\", \"translate(0,300)\")\n     .call(d3.axisBottom(xScale));\n\n  // Add y-axis\n  svg.append(\"g\")\n     .call(d3.axisLeft(yScale)\n             .ticks(5)\n             .tickFormat(d3.format(\".2f\")));\n\n  // Add y-axis label\n  svg.append(\"text\")\n     .attr(\"transform\", \"rotate(-90)\")\n     .attr(\"y\", 0 - 40)\n     .attr(\"x\", 0 - 150)\n     .attr(\"dy\", \"1em\")\n     .style(\"text-anchor\", \"middle\")\n     .text(\"Total\");",
+        "output": "str",
+        "x": 1070,
+        "y": 980,
+        "wires": [
+            [
+                "a34e5598bca75053"
+            ]
+        ]
+    }
+]

@@ -12,7 +12,7 @@ function App() {
     useEffect(() => {
         const fetchBatteryState = async () => {
             try {
-                const response = await fetch('/api/v2/status');
+                const response = await fetch(`/api/v2/status`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -24,27 +24,28 @@ function App() {
         };
 
         fetchBatteryState();
-        const interval = setInterval(fetchBatteryState, 5000); // Refresh every 5 seconds
+        const interval = setInterval(fetchBatteryState, 1000); // Refresh every 5 seconds
 
         return () => clearInterval(interval);
     }, []);
 
     const handleCharge = async () => {
-        await fetch('/api/v2/setpoint/charge/2000', { method: 'POST' });
+        await fetch(`/api/v2/setpoint/charge/2000`, { method: 'POST' });
     };
 
     const handleDischarge = async () => {
-        await fetch('/api/v2/setpoint/discharge/2000', { method: 'POST' });
+        await fetch(`/api/v2/setpoint/discharge/2000`, { method: 'POST' });
     };
 
     const handleStop = async () => {
-        await fetch('/api/v2/setpoint/discharge/0', { method: 'POST' });
-        await fetch('/api/v2/setpoint/charge/0', { method: 'POST' });
+        await fetch(`/api/v2/setpoint/discharge/0`, { method: 'POST' });
+        await fetch(`/api/v2/setpoint/charge/0`, { method: 'POST' });
     };
 
     return (
         <div>
             <h1>Battery Simulator</h1>
+            <p>Timestamp: {new Date().toLocaleString()}</p>
             <p>Operating Mode: {batteryState.OperatingMode}</p>
             <p>Battery Charging: {batteryState.BatteryCharging ? 'Yes' : 'No'}</p>
             <p>State of Charge: {batteryState.USOC}%</p>
