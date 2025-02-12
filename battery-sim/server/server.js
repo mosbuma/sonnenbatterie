@@ -77,7 +77,7 @@ app.post('/api/v2/setpoint/discharge/:watts', (req, res) => {
     res.json({ message: `Discharge set to ${watts} watts` });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 }); 

@@ -2,11 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // const serverHost = import.meta.env.VITE_SERVER_HOST || 'localhost';
-// const serverPort = import.meta.env.VITE_SERVER_PORT || '5000';
+// const serverPort = import.meta.env.VITE_SERVER_PORT || '5001';
 
 // const serverUrl = `http://${serverHost}:${serverPort}`;
 
-const serverUrl = `http://battery-sim-server:5000`;
+const serverUrl = `http://battery-sim-server:5001`;
 
 console.log('********* Server URL:', serverUrl);
 
