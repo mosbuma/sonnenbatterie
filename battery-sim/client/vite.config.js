@@ -1,22 +1,32 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// const serverHost = import.meta.env.VITE_SERVER_HOST || 'localhost';
-// const serverPort = import.meta.env.VITE_SERVER_PORT || '5001';
+const batterySimServerHost = import.meta.env?.VITE_SERVER_HOST || "localhost";
+const batterySimServerPort = import.meta.env?.VITE_SERVER_PORT || "5001";
+const batterySimServerUrl = `http://${batterySimServerHost}:${batterySimServerPort}`;
+// const serverUrl = `http://battery-sim-server:5001`;
+// const serverUrl = `http://localhost:5001`;
+console.log("********* battery-sim server:", batterySimServerUrl);
 
-// const serverUrl = `http://${serverHost}:${serverPort}`;
-
-const serverUrl = `http://battery-sim-server:5001`;
-
-console.log('********* Server URL:', serverUrl);
+const autopilotServerHost =
+  import.meta.env?.VITE_AUTOPILOT_SERVER_HOST || "localhost";
+const autopilotServerPort =
+  import.meta.env?.VITE_AUTOPILOT_SERVER_PORT || "5002";
+const autopilotServerUrl = `http://${autopilotServerHost}:${autopilotServerPort}`;
+console.log("********* autopilot   server:", autopilotServerUrl);
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': {
-        target: serverUrl, // Your Express server
+      "/api/autopilot": {
+        target: autopilotServerUrl, // Your Express server
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api": {
+        target: batterySimServerUrl, // Your Express server
         changeOrigin: true,
         secure: false,
       },

@@ -11,12 +11,16 @@ services:
     restart: unless-stopped
     user: "1000:1000"  # Run as user with ID 1000
 
+  battery-autopilot-server:
+    build: ./battery-autopilot/server
+    ports:
+      - "5002:5002"  # Ensure this port is open on your firewall
+    restart: unless-stopped
+
   battery-sim-server:
     build: ./battery-sim/server
     ports:
       - "5001:5001"  # Ensure this port is open on your firewall
-    environment:
-      - SERVER_ENV_VAR=example_value  # Replace with actual environment variables
     restart: unless-stopped
 
   battery-sim-client:
@@ -24,7 +28,8 @@ services:
     ports:
       - "5173:5173"  # Ensure this port is open on your firewall
     environment:
-      - CLIENT_ENV_VAR=example_value  # Replace with actual environment variables
       - VITE_SERVER_HOST=battery-sim-server  # Docker service name
       - VITE_SERVER_PORT=5001
+      - VITE_AUTOPILOT_SERVER_HOST=battery-autopilot-server  # Docker service name
+      - VITE_AUTOPILOT_SERVER_PORT=5002
     restart: unless-stopped
