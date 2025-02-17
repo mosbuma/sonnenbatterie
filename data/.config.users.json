@@ -24,6 +24,7 @@
             "workflow": {
                 "mode": "manual"
             }
-        }
+        },
+        "menu-menu-item-sidebar": true
     }
 }

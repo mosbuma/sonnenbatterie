@@ -1,13 +1,5 @@
 [
     {
-        "id": "55fb7acf095ebf24",
-        "type": "tab",
-        "label": "Flow 1",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
         "id": "9c9f23e35e225b55",
         "type": "tab",
         "label": "SonnenBatterie Control",
