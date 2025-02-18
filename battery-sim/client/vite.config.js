@@ -11,7 +11,7 @@ console.log("********* battery-sim server:", batterySimServerUrl);
 const autopilotServerHost =
   import.meta.env?.VITE_AUTOPILOT_SERVER_HOST || "localhost";
 const autopilotServerPort =
-  import.meta.env?.VITE_AUTOPILOT_SERVER_PORT || "5001";
+  import.meta.env?.VITE_AUTOPILOT_SERVER_PORT || "5002";
 const autopilotServerUrl = `http://${autopilotServerHost}:${autopilotServerPort}`;
 console.log("********* autopilot   server:", autopilotServerUrl);
 
