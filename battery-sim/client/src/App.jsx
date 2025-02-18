@@ -23,7 +23,12 @@ function App() {
     DischargingPower_W: 0,
   });
 
-  const [autopilotState, setAutopilotState] = useState({ enabled: false });
+  const [autopilotState, setAutopilotState] = useState({
+    enabled: false,
+    priceInfoProvider: "none",
+    priceInfo: [],
+  });
+
   const [timeRunningState, setTimeRunningState] = useState(false);
   const [apiStatus, setApiStatus] = useState({
     battery: "unknown",
@@ -399,8 +404,8 @@ function App() {
           <StatusLed status={apiStatus.autopilot} />
           <h2 className="text-xl font-semibold mb-4">Battery Control</h2>
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-700">Auto</span>
+            <div className="flex items-center space-x-2 ">
+              <span className="text-gray-700 w-16">Auto</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -410,9 +415,29 @@ function App() {
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
+              <button
+                onClick={() => {
+                  const s = autopilotState.priceInfo
+                    .map(
+                      (priceInfo) => `${priceInfo.startsAt} €${priceInfo.price}`
+                    )
+                    .join("\n");
+
+                  alert(s);
+                }}
+                disabled={!autopilotState.enabled}
+                className={`px-4 py-2 rounded-md ${
+                  !autopilotState.enabled
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600 text-white"
+                }`}
+              >
+                {autopilotState.priceInfoProvider} Price Info
+              </button>
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 items-center">
+              <span className="text-gray-700 w-16">Manual</span>
               <button
                 onClick={handleCharge}
                 disabled={autopilotState.enabled}

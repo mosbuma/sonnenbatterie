@@ -15,8 +15,6 @@ services:
     ports:
       - "5001:5001"
       - "5002:5002"
-    env_file:
-      - ./battery-sim/server/.env
     environment:
       - BATTERY_PORT=5001
       - AUTOPILOT_PORT=5002
