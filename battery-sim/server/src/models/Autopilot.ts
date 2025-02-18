@@ -1,5 +1,8 @@
 import { TibberQuery, IConfig } from "tibber-api";
 
+// via api : https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices?date=2025-02-18&market=DayAhead&deliveryArea=NL&currency=EUR
+// via site: https://data.nordpoolgroup.com/auction/day-ahead/prices?deliveryDate=2025-02-18&currency=EUR&aggregation=DeliveryPeriod&deliveryAreas=NL
+
 import {
   type AutopilotState,
   DEFAULT_AUTOPILOT_STATE,
