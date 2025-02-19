@@ -32,7 +32,7 @@ export interface AutopilotState {
 }
 
 export const DEFAULT_AUTOPILOT_STATE: AutopilotState = {
-  profileName: "high-low",
+  profileName: "charge-discharge-stop (30 seconds loop)",
   priceInfoProvider: "none",
   priceInfo: [],
 };

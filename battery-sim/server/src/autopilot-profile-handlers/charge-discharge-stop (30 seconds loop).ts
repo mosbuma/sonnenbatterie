@@ -19,7 +19,9 @@ export const chargeDischargeStopProfileHandler = async (
   const phase =
     Math.floor(currentTime.getTime() / SECOND_MS / SECONDS_PER_PHASE) %
     N_PHASES;
-  console.log(`Phase ${phase} at ${currentTime.toLocaleString()}`);
+  console.log(
+    `charge-discharge-stop (30 seconds loop): phase ${phase} at ${currentTime.toLocaleString()}`
+  );
 
   // const isCharging = batteryState.BatteryCharging;
   // //   const isCharging = batteryState.ChargingPower_W > 0
