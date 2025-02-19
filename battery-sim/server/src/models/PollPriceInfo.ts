@@ -20,6 +20,8 @@ import {
   MINUTE_MS,
   TAXES_PER_KWH,
   VAT,
+  DELIVERY_AREA,
+  CURRENCY,
 } from "../types/autopilot";
 
 // There is a rate limit of 100 requests in 5 minutes per IP address intended to protect the API.
@@ -74,29 +76,36 @@ export const pollPriceInfo = (
   const pollPriceInfoProviderNordPool = async (): Promise<
     [PriceInfoProvider, PriceInfo[]]
   > => {
-    const now = new Date();
-    const todayString = `${now.getFullYear()}-${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")}`;
-    const urlToday = `https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices?date=${todayString}&market=DayAhead&deliveryArea=NL&currency=EUR`;
-    const responseToday = await fetch(urlToday);
-    const jsonToday = await responseToday.json();
+    let todaysEnergyPrices;
+    try {
+      const now = new Date();
+      const todayString = `${now.getFullYear()}-${(now.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")}`;
+      const urlToday = `https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices?date=${todayString}&market=DayAhead&deliveryArea=${DELIVERY_AREA}&currency=${CURRENCY}`;
+      const responseToday = await fetch(urlToday);
+      todaysEnergyPrices = (await responseToday.json()).multiAreaEntries;
+    } catch (e) {
+      todaysEnergyPrices = [];
+    }
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = `${tomorrow.getFullYear()}-${(
-      tomorrow.getMonth() + 1
-    )
-      .toString()
-      .padStart(2, "0")}-${tomorrow.getDate().toString().padStart(2, "0")}`;
-    const urlTomorrow = `https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices?date=${tomorrowString}&market=DayAhead&deliveryArea=NL&currency=EUR`;
-    const responseTomorrow = await fetch(urlTomorrow);
-    const jsonTomorrow = await responseTomorrow.json();
+    let tomorrowsEnergyPrices;
+    try {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowString = `${tomorrow.getFullYear()}-${(
+        tomorrow.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}-${tomorrow.getDate().toString().padStart(2, "0")}`;
+      const urlTomorrow = `https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices?date=${tomorrowString}&market=DayAhead&deliveryArea=${DELIVERY_AREA}&currency=${CURRENCY}`;
+      const responseTomorrow = await fetch(urlTomorrow);
+      tomorrowsEnergyPrices = (await responseTomorrow.json()).multiAreaEntries;
+    } catch (e) {
+      tomorrowsEnergyPrices = [];
+    }
 
-    const prices = [
-      ...jsonToday.multiAreaEntries,
-      ...jsonTomorrow.multiAreaEntries,
-    ];
+    const prices = [...todaysEnergyPrices, ...tomorrowsEnergyPrices];
 
     const priceInfo: PriceInfo[] = prices.map((entry: any) => ({
       startsAt: entry.deliveryStart,
