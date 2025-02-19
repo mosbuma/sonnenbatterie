@@ -133,8 +133,8 @@ export const pollPriceInfo = (
         new Date(price.startsAt).getTime() >= new Date().getTime() - 1 * HOUR_MS
     );
 
-    console.table(upcomingPrices);
-    console.log(`priceInfoProvider: ${priceInfoProvider}`);
+    // console.table(upcomingPrices);
+    // console.log(`priceInfoProvider: ${priceInfoProvider}`);
 
     updateState({
       priceInfoProvider,

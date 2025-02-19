@@ -37,7 +37,7 @@ const TIME_INTERVAL_MS = 1000;
 let timeInterval: ReturnType<typeof setInterval> | null = null;
 let timeRunning = false;
 let currentTime = new Date("2025-01-01T00:00:00");
-let speedupFactor = 60;
+let speedupFactor = 1; // same as in App.jsx
 
 // Battery Simulator endpoints
 batteryApp.get("/api/v2/status", (c) => {

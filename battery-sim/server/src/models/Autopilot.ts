@@ -1,18 +1,15 @@
 import {
   type AutopilotState,
   type ProfileName,
+  BATTERY_API,
   DEFAULT_AUTOPILOT_STATE,
   profileNames,
   SECOND_MS,
 } from "../types/autopilot";
 import { pollPriceInfo } from "./PollPriceInfo";
+import { profileHandlers } from "../autopilot-profile-handlers";
 
 const AUTOPILOT_UPDATE_INTERVAL = 10 * SECOND_MS;
-
-const BATTERY_API = `http://localhost:${parseInt(
-  Bun.env.BATTERY_PORT || "5001"
-)}`;
-// console.log(`BATTERY_API: ${BATTERY_API}`);
 
 export class Autopilot {
   private state: AutopilotState;
@@ -25,11 +22,21 @@ export class Autopilot {
   }
 
   autopilotInterval = async () => {
-    if (this.state.profileName === "manual") return;
+    const batteryResponse = await fetch(`${BATTERY_API}/api/v2/status`);
+    const batteryState = await batteryResponse.json();
 
-    console.log(`TODO: autopilot profile ${this.state.profileName}`);
+    const autopilotState = this.state;
 
-    // talk to BATTERY_API and see if we need to charge/discharge/stop the battery
+    const currentTimeResponse = await fetch(
+      `${BATTERY_API}/api/v2/time/current`
+    );
+    const result = await currentTimeResponse.json();
+
+    profileHandlers[this.state.profileName](
+      batteryState,
+      autopilotState,
+      new Date(result.currentTime)
+    );
   };
 
   // state related

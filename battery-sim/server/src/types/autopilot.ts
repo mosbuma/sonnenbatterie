@@ -7,6 +7,10 @@ export const CURRENCY = "EUR";
 export const TAXES_PER_KWH = 0.1228; // NL 2025, see: https://support.tibber.com/nl/articles/5605892-wat-verandert-er-in-2025
 export const VAT = 1.21;
 
+export const BATTERY_API = `http://localhost:${parseInt(
+  Bun.env.BATTERY_PORT || "5001"
+)}`;
+
 export interface PriceInfo {
   startsAt: string;
   price: number; // including additional costs and vat
@@ -24,7 +28,7 @@ export interface AutopilotState {
 }
 
 export const DEFAULT_AUTOPILOT_STATE: AutopilotState = {
-  profileName: "manual",
+  profileName: "high-low",
   priceInfoProvider: "none",
   priceInfo: [],
 };

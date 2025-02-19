@@ -1,6 +1,6 @@
 // battery-sim/client/src/App.jsx
 import { useState, useEffect } from "react";
-import moment from "moment";
+// import moment from "moment";
 import StatusLed from "./components/StatusLed";
 
 //
@@ -50,7 +50,8 @@ function App() {
       try {
         const response = await fetch(`${BATTERY_API}/api/v2/time/current`);
         const result = await response.json();
-        setCurrentTime(moment(result.currentTime).format("LLLL"));
+        setCurrentTime(new Date(result.currentTime).toLocaleString());
+        // setCurrentTime(moment(result.currentTime).format("LLLL"));
       } catch (error) {
         console.error("Error fetching current time:", error);
       } finally {
@@ -245,7 +246,8 @@ function App() {
     try {
       await fetch(`${BATTERY_API}/api/v2/reset/empty`, { method: "POST" });
       setBatteryState((prevState) => ({ ...prevState, USOC: 0 })); // Update state to reflect empty charge
-      setCurrentTime(moment("2025-01-01T00:00:00").format("LLLL")); // Reset time
+      setCurrentTime(new Date("2025-01-01T00:00:00").toLocaleString()); // Reset time
+      // setCurrentTime(moment("2025-01-01T00:00:00").format("LLLL")); // Reset time
     } catch (error) {
       console.error("Error resetting to empty:", error);
     }
@@ -255,7 +257,8 @@ function App() {
     try {
       await fetch(`${BATTERY_API}/api/v2/reset/full`, { method: "POST" });
       setBatteryState((prevState) => ({ ...prevState, USOC: 100 })); // Update state to reflect full charge
-      setCurrentTime(moment("2025-01-01T00:00:00").format("LLLL")); // Reset time
+      setCurrentTime(new Date("2025-01-01T00:00:00").toLocaleString()); // Reset time
+      // setCurrentTime(moment("2025-01-01T00:00:00").format("LLLL")); // Reset time
     } catch (error) {
       console.error("Error resetting to full:", error);
     }
@@ -287,7 +290,7 @@ function App() {
                   {batteryState.BatteryCharging ? "Yes" : "No"}
                 </p>
                 <p className="text-gray-600">
-                  State of Charge: {batteryState.USOC}%
+                  State of Charge: {batteryState.USOC.toFixed(2)}%
                 </p>
                 <p className="text-gray-600">
                   Minimum Charge Level: {minChargeLevel}%
@@ -449,7 +452,6 @@ function App() {
 
                   alert(s);
                 }}
-                disabled={!isAutopilotEnabled}
                 className="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white"
               >
                 {autopilotState.priceInfoProvider} Price Info
