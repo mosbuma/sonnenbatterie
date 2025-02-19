@@ -42,8 +42,8 @@ export class Autopilot {
   };
 
   // profile related
-  getProfileNames = (): readonly ProfileName[] => {
-    return profileNames;
+  getProfileNames = (): ProfileName[] => {
+    return [...profileNames];
   };
 
   setProfileName = (profileName: ProfileName): void => {

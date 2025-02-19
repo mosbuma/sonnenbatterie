@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { Battery } from "./models/Battery";
 import { env } from "bun";
 import { Autopilot } from "./models/Autopilot";
+import { ProfileName, profileNames } from "./types/autopilot";
 
 // Create separate apps for different ports
 const batteryApp = new Hono();
@@ -144,9 +145,17 @@ autopilotApp.get("/api/autopilot/v1/status", (c) => {
   return c.json(autopilot.getState());
 });
 
-autopilotApp.post("/api/autopilot/v1/enable/:enabled", (c) => {
-  const enabled = c.req.param("enabled") === "true";
-  autopilot.setProfileName(enabled ? "high-low" : "manual");
+autopilotApp.get("/api/autopilot/v1/profiles", (c) => {
+  return c.json(autopilot.getProfileNames());
+});
+
+autopilotApp.post("/api/autopilot/v1/profile/:name", (c) => {
+  const name = c.req.param("name") as ProfileName;
+  if (!profileNames.includes(name)) {
+    // console.error(`error: unknown profile name "${name}"`);
+    return c.json(false);
+  }
+  autopilot.setProfileName(name);
   return c.json(true);
 });
 
