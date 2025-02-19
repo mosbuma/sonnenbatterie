@@ -14,14 +14,17 @@ export interface PriceInfo {
 
 export type PriceInfoProvider = "none" | "Tibber" | "Nord Pool";
 
+export const profileNames = ["manual", "high-low"] as const;
+export type ProfileName = (typeof profileNames)[number];
+
 export interface AutopilotState {
-  enabled: boolean;
+  profileName: ProfileName;
   priceInfoProvider: PriceInfoProvider;
   priceInfo: PriceInfo[];
 }
 
 export const DEFAULT_AUTOPILOT_STATE: AutopilotState = {
-  enabled: false,
+  profileName: "manual",
   priceInfoProvider: "none",
   priceInfo: [],
 };

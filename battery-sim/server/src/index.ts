@@ -146,7 +146,7 @@ autopilotApp.get("/api/autopilot/v1/status", (c) => {
 
 autopilotApp.post("/api/autopilot/v1/enable/:enabled", (c) => {
   const enabled = c.req.param("enabled") === "true";
-  autopilot.setEnabled(enabled);
+  autopilot.setProfileName(enabled ? "high-low" : "manual");
   return c.json(true);
 });
 

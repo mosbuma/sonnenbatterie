@@ -24,7 +24,7 @@ function App() {
   });
 
   const [autopilotState, setAutopilotState] = useState({
-    enabled: false,
+    profileName: "manual",
     priceInfoProvider: "none",
     priceInfo: [],
   });
@@ -140,9 +140,11 @@ function App() {
     fetchAutopilotState();
   }, []);
 
+  const isAutopilotEnabled = autopilotState.profileName !== "manual";
+
   const handleToggleAutopilot = async () => {
     await fetch(
-      `${AUTOPILOT_API}/api/autopilot/v1/enable/${!autopilotState.enabled}`,
+      `${AUTOPILOT_API}/api/autopilot/v1/enable/${!isAutopilotEnabled}`,
       {
         method: "POST",
       }
@@ -409,7 +411,7 @@ function App() {
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={autopilotState.enabled}
+                  checked={isAutopilotEnabled}
                   onChange={handleToggleAutopilot}
                   className="sr-only peer"
                 />
@@ -425,9 +427,9 @@ function App() {
 
                   alert(s);
                 }}
-                disabled={!autopilotState.enabled}
+                disabled={!isAutopilotEnabled}
                 className={`px-4 py-2 rounded-md ${
-                  !autopilotState.enabled
+                  !isAutopilotEnabled
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600 text-white"
                 }`}
@@ -440,9 +442,9 @@ function App() {
               <span className="text-gray-700 w-16">Manual</span>
               <button
                 onClick={handleCharge}
-                disabled={autopilotState.enabled}
+                disabled={isAutopilotEnabled}
                 className={`px-4 py-2 rounded-md ${
-                  autopilotState.enabled
+                  isAutopilotEnabled
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600 text-white"
                 }`}
@@ -451,9 +453,9 @@ function App() {
               </button>
               <button
                 onClick={handleDischarge}
-                disabled={autopilotState.enabled}
+                disabled={isAutopilotEnabled}
                 className={`px-4 py-2 rounded-md ${
-                  autopilotState.enabled
+                  isAutopilotEnabled
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-yellow-500 hover:bg-yellow-600 text-white"
                 }`}
@@ -462,9 +464,9 @@ function App() {
               </button>
               <button
                 onClick={handleStop}
-                disabled={autopilotState.enabled}
+                disabled={isAutopilotEnabled}
                 className={`px-4 py-2 rounded-md ${
-                  autopilotState.enabled
+                  isAutopilotEnabled
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-red-500 hover:bg-red-600 text-white"
                 }`}
@@ -479,7 +481,7 @@ function App() {
           <h2 className="text-xl font-semibold mb-4">System Status</h2>
           <div className="space-y-2">
             <p className="text-gray-600">
-              Autopilot enabled: {autopilotState.enabled.toString()}
+              Autopilot profile: {autopilotState.profileName}
             </p>
             <p className="text-gray-600">
               Time simulation running: {timeRunningState.toString()}

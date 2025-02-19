@@ -1,6 +1,8 @@
 import {
   type AutopilotState,
+  type ProfileName,
   DEFAULT_AUTOPILOT_STATE,
+  profileNames,
   SECOND_MS,
 } from "../types/autopilot";
 import { pollPriceInfo } from "./PollPriceInfo";
@@ -23,13 +25,14 @@ export class Autopilot {
   }
 
   autopilotInterval = async () => {
-    if (!this.state.enabled) return;
+    if (this.state.profileName === "manual") return;
 
-    console.log(`TODO: autopilot`);
+    console.log(`TODO: autopilot profile ${this.state.profileName}`);
 
     // talk to BATTERY_API and see if we need to charge/discharge/stop the battery
   };
 
+  // state related
   getState = (): AutopilotState => {
     return { ...this.state };
   };
@@ -38,7 +41,12 @@ export class Autopilot {
     this.state = { ...this.state, ...stateUpdates };
   };
 
-  setEnabled = (enabled: boolean): void => {
-    this.state.enabled = enabled;
+  // profile related
+  getProfileNames = (): readonly ProfileName[] => {
+    return profileNames;
+  };
+
+  setProfileName = (profileName: ProfileName): void => {
+    this.state.profileName = profileName;
   };
 }
