@@ -18,7 +18,11 @@ export interface PriceInfo {
 
 export type PriceInfoProvider = "none" | "Tibber" | "Nord Pool";
 
-export const profileNames = ["manual", "high-low"] as const;
+export const profileNames = [
+  "manual",
+  "charge-discharge-stop (30 seconds loop)",
+  "high-low",
+] as const;
 export type ProfileName = (typeof profileNames)[number];
 
 export interface AutopilotState {
