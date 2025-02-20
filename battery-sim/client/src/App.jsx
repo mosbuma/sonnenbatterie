@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import StatusLed from "./components/StatusLed";
 
 //
-const UPDATE_INTERVAL = 1000;
+const DEFAULT_DATETIME = "2025-01-01T00:00:00";
+
+const UPDATE_INTERVAL = 1 * 1000;
 
 // Get API URLs from environment variables
 const BATTERY_API =
@@ -24,13 +26,9 @@ function App() {
   });
 
   const [autopilotState, setAutopilotState] = useState({
-    profileName: "manual",
-    priceInfoProvider: "none",
-    priceInfo: [],
+    profileName: "",
   });
-  const [autopilotProfileNames, setAutopilotProfileNames] = useState([
-    "manual",
-  ]);
+  const [autopilotProfileNames, setAutopilotProfileNames] = useState([]);
 
   const [timeRunningState, setTimeRunningState] = useState(false);
   const [apiStatus, setApiStatus] = useState({
@@ -208,6 +206,20 @@ function App() {
     }
   };
 
+  const handleSetTime = async (time) => {
+    try {
+      await fetch(`${BATTERY_API}/api/v2/time/set`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ time }),
+      });
+    } catch (error) {
+      console.error(`Error setting time to now:`, error);
+    }
+  };
+
   const handleCharge = async () => {
     await fetch(`${BATTERY_API}/api/v2/setpoint/charge/2000`, {
       method: "POST",
@@ -246,8 +258,8 @@ function App() {
     try {
       await fetch(`${BATTERY_API}/api/v2/reset/empty`, { method: "POST" });
       setBatteryState((prevState) => ({ ...prevState, USOC: 0 })); // Update state to reflect empty charge
-      setCurrentTime(new Date("2025-01-01T00:00:00").toLocaleString()); // Reset time
-      // setCurrentTime(moment("2025-01-01T00:00:00").format("LLLL")); // Reset time
+      setCurrentTime(new Date(DEFAULT_DATETIME).toLocaleString()); // Reset time
+      // setCurrentTime(moment(DEFAULT_DATETIME).format("LLLL")); // Reset time
     } catch (error) {
       console.error("Error resetting to empty:", error);
     }
@@ -257,8 +269,8 @@ function App() {
     try {
       await fetch(`${BATTERY_API}/api/v2/reset/full`, { method: "POST" });
       setBatteryState((prevState) => ({ ...prevState, USOC: 100 })); // Update state to reflect full charge
-      setCurrentTime(new Date("2025-01-01T00:00:00").toLocaleString()); // Reset time
-      // setCurrentTime(moment("2025-01-01T00:00:00").format("LLLL")); // Reset time
+      setCurrentTime(new Date(DEFAULT_DATETIME).toLocaleString()); // Reset time
+      // setCurrentTime(moment(DEFAULT_DATETIME).format("LLLL")); // Reset time
     } catch (error) {
       console.error("Error resetting to full:", error);
     }
@@ -357,6 +369,17 @@ function App() {
                   >
                     Advance 4 Hours
                   </button>
+                  <button
+                    onClick={() => handleSetTime(new Date())}
+                    disabled={timeRunningState}
+                    className={`px-4 py-2 rounded-md ${
+                      timeRunningState
+                        ? "bg-gray-300 cursor-not-allowed"
+                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                    }`}
+                  >
+                    Set to now
+                  </button>
                 </div>
                 <div className="flex justify-center space-x-2 mt-4">
                   <button
@@ -442,20 +465,6 @@ function App() {
                   </option>
                 ))}
               </select>
-              <button
-                onClick={() => {
-                  const s = autopilotState.priceInfo
-                    .map(
-                      (priceInfo) => `${priceInfo.startsAt} €${priceInfo.price}`
-                    )
-                    .join("\n");
-
-                  alert(s);
-                }}
-                className="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                {autopilotState.priceInfoProvider} Price Info
-              </button>
             </div>
 
             <div className="flex space-x-2 items-center">

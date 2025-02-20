@@ -1,27 +1,20 @@
-import {
-  BATTERY_API,
-  SECOND_MS,
-  type AutopilotState,
-} from "../types/autopilot";
+import { BATTERY_API, SECOND_MS, type PriceInfo } from "../types/autopilot";
 import { type BatteryState } from "../types/battery";
 
 const SECONDS_PER_PHASE = 10;
 const N_PHASES = 3;
 
 export const chargeDischargeStopProfileHandler = async (
-  batteryState: BatteryState,
-  autopilotState: AutopilotState,
-  currentTime: Date
+  currentTime: Date,
+  priceInfo: PriceInfo[],
+  batteryState: BatteryState
 ) => {
-  console.log("");
-  console.table(autopilotState.priceInfo);
+  console.table(priceInfo);
   console.table(batteryState);
   const phase =
     Math.floor(currentTime.getTime() / SECOND_MS / SECONDS_PER_PHASE) %
     N_PHASES;
-  console.log(
-    `charge-discharge-stop (30 seconds loop): phase ${phase} at ${currentTime.toLocaleString()}`
-  );
+  console.log(`Applying phase ${phase}`);
 
   // const isCharging = batteryState.BatteryCharging;
   // //   const isCharging = batteryState.ChargingPower_W > 0

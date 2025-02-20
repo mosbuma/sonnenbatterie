@@ -16,7 +16,7 @@ export interface PriceInfo {
   price: number; // including additional costs and vat
 }
 
-export type PriceInfoProvider = "none" | "Tibber" | "Nord Pool";
+export type PriceInfoProvider = "Tibber" | "Nord Pool";
 
 export const profileNames = [
   "manual",
@@ -27,12 +27,8 @@ export type ProfileName = (typeof profileNames)[number];
 
 export interface AutopilotState {
   profileName: ProfileName;
-  priceInfoProvider: PriceInfoProvider;
-  priceInfo: PriceInfo[];
 }
 
 export const DEFAULT_AUTOPILOT_STATE: AutopilotState = {
   profileName: "charge-discharge-stop (30 seconds loop)",
-  priceInfoProvider: "none",
-  priceInfo: [],
 };

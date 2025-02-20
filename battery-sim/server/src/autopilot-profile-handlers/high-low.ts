@@ -1,10 +1,10 @@
-import { type AutopilotState } from "../types/autopilot";
+import { type PriceInfo } from "../types/autopilot";
 import { type BatteryState } from "../types/battery";
 
 export const highLowProfileHandler = async (
-  batteryState: BatteryState,
-  autopilotState: AutopilotState,
-  currentTime: Date
+  currentTime: Date,
+  priceInfo: PriceInfo[],
+  batteryState: BatteryState
 ) => {
   console.warn("TODO: high-low profile");
 };

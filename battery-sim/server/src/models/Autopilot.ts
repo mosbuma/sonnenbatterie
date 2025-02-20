@@ -3,40 +3,50 @@ import {
   type ProfileName,
   BATTERY_API,
   DEFAULT_AUTOPILOT_STATE,
+  PriceInfo,
   profileNames,
   SECOND_MS,
 } from "../types/autopilot";
-import { pollPriceInfo } from "./PollPriceInfo";
+import { getPriceInfo } from "../lib/Priceinfo";
 import { profileHandlers } from "../autopilot-profile-handlers";
 
+//
 const AUTOPILOT_UPDATE_INTERVAL = 10 * SECOND_MS;
 
+//
 export class Autopilot {
   private state: AutopilotState;
 
   constructor(initialState: Partial<AutopilotState> = {}) {
     this.state = { ...DEFAULT_AUTOPILOT_STATE, ...initialState };
-    pollPriceInfo(this.updateState);
+
+    // pollPriceInfo(this.updateState);
     this.autopilotInterval();
     setInterval(this.autopilotInterval, AUTOPILOT_UPDATE_INTERVAL);
   }
 
   autopilotInterval = async () => {
-    const batteryResponse = await fetch(`${BATTERY_API}/api/v2/status`);
-    const batteryState = await batteryResponse.json();
+    console.log("");
 
-    const autopilotState = this.state;
-
+    // note: we could optimize the following by wrapping them in a Promise.all(...)
     const currentTimeResponse = await fetch(
       `${BATTERY_API}/api/v2/time/current`
     );
     const result = await currentTimeResponse.json();
+    const currentTime = new Date(result.currentTime);
+
+    const priceInfo = await getPriceInfo(currentTime);
+
+    const batteryResponse = await fetch(`${BATTERY_API}/api/v2/status`);
+    const batteryState = await batteryResponse.json();
 
     profileHandlers[this.state.profileName](
-      batteryState,
-      autopilotState,
-      new Date(result.currentTime)
+      currentTime,
+      priceInfo,
+      batteryState
     );
+
+    console.log(`${currentTime.toLocaleString()}: ${this.state.profileName}`);
   };
 
   // state related

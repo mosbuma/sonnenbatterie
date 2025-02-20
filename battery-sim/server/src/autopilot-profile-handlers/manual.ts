@@ -1,10 +1,10 @@
-import { type AutopilotState } from "../types/autopilot";
+import { type PriceInfo } from "../types/autopilot";
 import { type BatteryState } from "../types/battery";
 
 export const manualProfileHandler = async (
-  batteryState: BatteryState,
-  autopilotState: AutopilotState,
-  currentTime: Date
+  currentTime: Date,
+  priceInfo: PriceInfo[],
+  batteryState: BatteryState
 ) => {
   // Do nothing because this the user wants to do this himself (probably from the UI)
 };

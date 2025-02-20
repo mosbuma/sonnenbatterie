@@ -3,7 +3,7 @@ import { cors } from "hono/cors";
 import { Battery } from "./models/Battery";
 import { env } from "bun";
 import { Autopilot } from "./models/Autopilot";
-import { ProfileName, profileNames } from "./types/autopilot";
+import { ProfileName, profileNames, SECOND_MS } from "./types/autopilot";
 
 // Create separate apps for different ports
 const batteryApp = new Hono();
@@ -33,10 +33,11 @@ const battery = new Battery();
 const autopilot = new Autopilot();
 
 // Time configuration
-const TIME_INTERVAL_MS = 1000;
+const DEFAULT_DATETIME = "2025-01-01T00:00:00";
+const TIME_INTERVAL_MS = 1 * SECOND_MS;
 let timeInterval: ReturnType<typeof setInterval> | null = null;
 let timeRunning = false;
-let currentTime = new Date("2025-01-01T00:00:00");
+let currentTime = new Date(DEFAULT_DATETIME);
 let speedupFactor = 1; // same as in App.jsx
 
 // Battery Simulator endpoints
@@ -115,13 +116,13 @@ batteryApp.post("/api/v2/time/speedup", async (c) => {
 
 batteryApp.post("/api/v2/reset/empty", (c) => {
   battery.setStateOfCharge(0); // Set battery charge to 0%
-  currentTime = new Date("2025-01-01T00:00:00"); // Reset time
+  currentTime = new Date(DEFAULT_DATETIME); // Reset time
   return c.json({ success: true });
 });
 
 batteryApp.post("/api/v2/reset/full", (c) => {
   battery.setStateOfCharge(100); // Set battery charge to 100%
-  currentTime = new Date("2025-01-01T00:00:00"); // Reset time
+  currentTime = new Date(DEFAULT_DATETIME); // Reset time
   return c.json({ success: true });
 });
 
